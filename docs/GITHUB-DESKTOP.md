@@ -1,5 +1,7 @@
 # Pubblicazione con GitHub Desktop
 
+Il repository è ora pubblico e la [release 1.2.0](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0) è disponibile. I passaggi sotto documentano la prima pubblicazione e possono essere adattati alle prossime versioni.
+
 Repository locale: C:\Progetti\e-invoiceviewer
 
 Nome proposto del repository pubblico: **e-invoiceviewer**.

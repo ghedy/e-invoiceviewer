@@ -11,7 +11,11 @@
 - Istruzioni operative: [GitHub Desktop](GITHUB-DESKTOP.md).
 - Testi pronti: [release](RELEASE-v1.2.0.md) e [catalogo Thunderbird](ATN-LISTING.md).
 
-La pubblicazione remota e la creazione della release non sono ancora state eseguite. Gli screenshot reali con dati sintetici e l’invio ad ATN restano da completare.
+Repository pubblico: https://github.com/ghedy/e-invoiceviewer
+
+Release 1.2.0 pubblicata il 16 ottobre 2026: https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0
+
+Download pubblico dell’XPI verificato identico al pacchetto locale. I controlli automatici GitHub risultano superati. Gli screenshot reali con dati sintetici e l’invio ad ATN restano da completare.
 
 ## Presentazione consigliata
 
