@@ -8,11 +8,11 @@ Leggi XML e P7M con il foglio di stile AssoSoftware, consulta i PDF incorporati 
 
 **[Scopri gli altri programmi dell’autore](https://quadra.acortina.it)** · [Edoardo Ghedina su GitHub](https://github.com/ghedy)
 
-Versione preparata per la distribuzione: **1.2.0**.
+**[Scarica e-Invoice Viewer 1.2.0](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0)**
 
 ## Installazione
 
-Dopo la pubblicazione, il file installabile sarà disponibile nella sezione **Releases** di questo repository.
+Il file installabile è disponibile nella sezione **[Releases](https://github.com/ghedy/e-invoiceviewer/releases)**.
 
 1. Scarica **e-invoiceviewer-1.2.0.xpi**, non l’archivio “Source code”.
 2. In Thunderbird apri **Componenti aggiuntivi e temi**.
@@ -20,7 +20,7 @@ Dopo la pubblicazione, il file installabile sarà disponibile nella sezione **Re
 4. Seleziona l’XPI e conferma l’installazione.
 5. Apri un messaggio contenente una fattura e premi **Visualizza fatture**.
 
-Se il repository non ha ancora una release, il manutentore deve pubblicare il pacchetto preparato. Istruzioni: [GitHub Desktop](docs/GITHUB-DESKTOP.md).
+Per preparare nuove release: [istruzioni per GitHub Desktop](docs/GITHUB-DESKTOP.md).
 
 ## Funzioni
 

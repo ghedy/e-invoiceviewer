@@ -27,9 +27,9 @@ Il foglio di stile AssoSoftware è di proprietà del titolare ed è incluso inva
 ## Campi di pubblicazione
 
 - Pagina dell’autore: https://quadra.acortina.it
-- Repository proposto: https://github.com/ghedy/e-invoiceviewer (da creare prima di usare il link)
-- Supporto: sezione Issues del repository, dopo la pubblicazione.
-- Riservatezza: usare il contenuto di PRIVACY.md e il relativo URL pubblico dopo la pubblicazione.
+- Repository: https://github.com/ghedy/e-invoiceviewer
+- Supporto: https://github.com/ghedy/e-invoiceviewer/issues
+- Riservatezza: https://github.com/ghedy/e-invoiceviewer/blob/main/PRIVACY.md
 - Licenza: ISC per il codice originale; indicare esplicitamente le condizioni separate del foglio AssoSoftware.
 - Screenshot: fattura sintetica e accesso al PDF; nessun dato cliente. Devono essere acquisiti dalla versione effettiva, senza presentarli come già disponibili.
 

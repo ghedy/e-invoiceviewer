@@ -1,6 +1,6 @@
 # Novità
 
-## 1.2.0 — prima distribuzione pubblica, in preparazione
+## 1.2.0 — 16 ottobre 2026
 
 - Apertura di fatture elettroniche italiane XML e P7M, anche da postacert.eml.
 - Selezione tra più fatture nello stesso messaggio.
