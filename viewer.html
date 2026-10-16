@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualizzatore Fattura Elettronica</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            max-width: 848px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            background: #fff;
+            color: #111;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        #security-status {
+            margin: 0 0 10px;
+            color: #666;
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 1.4;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+        #title,
+        #invoice-choice,
+        #attachments-bar,
+        #print-actions {
+            margin: 0 0 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+        #invoice-select {
+            max-width: 100%;
+            font: inherit;
+        }
+        #attachments-bar {
+            display: none;
+        }
+        #attachments-title {
+            margin-right: 6px;
+        }
+        #attachments-list {
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 12px;
+            max-width: 100%;
+            vertical-align: top;
+        }
+        .attachment-button {
+            max-width: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            line-height: inherit;
+            overflow-wrap: anywhere;
+            cursor: pointer;
+        }
+        .attachment-button:hover {
+            text-decoration: underline;
+        }
+        .attachment-button:focus-visible {
+            outline: 2px solid #2962a3;
+            outline-offset: 3px;
+        }
+        .attachment-button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+        #attachment-status {
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        #print-status {
+            margin: 0 0 8px;
+            text-align: center;
+        }
+        #print-status:empty,
+        #attachment-status:empty {
+            display: none;
+        }
+        #invoice-container {
+            margin: 0;
+            padding: 0;
+            min-height: 80vh;
+            overflow: auto;
+        }
+        iframe {
+            display: block;
+            width: 100%;
+            min-width: 816px;
+            height: 80vh;
+            border: 0;
+            background: #fff;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <p id="security-status" role="status">Firma digitale e certificazione PEC non verificate.</p>
+    <p id="invoice-choice" hidden><label>Fattura <select id="invoice-select"></select></label></p>
+    <h2 id="title">Caricamento fattura in corso...</h2>
+    <div id="attachments-bar">
+        <span id="attachments-title">Allegati</span>
+        <div id="attachments-list"></div>
+        <p id="attachment-status" role="status"></p>
+    </div>
+    
+    <p id="print-actions"><button id="print-invoice" class="attachment-button" type="button" disabled>Stampa fattura</button></p>
+    <p id="print-status" role="status"></p>
+
+    <!-- Qui dentro verrà iniettata la fattura trasformata in HTML -->
+    <div id="invoice-container"></div>
+    
+    <!-- Questo dice alla pagina di eseguire il file viewer.js -->
+    <script src="shared/core.js"></script>
+    <script src="viewer.js"></script>
+</body>
+</html>

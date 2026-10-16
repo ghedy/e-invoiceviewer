@@ -1,0 +1,5 @@
+* text=auto eol=lf
+shared/assets/assofattura.xsl -text
+*.png binary
+*.pdf binary
+*.eml -text

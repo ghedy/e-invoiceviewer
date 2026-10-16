@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+*.eml
+*.p7m
+.env
+.env.*
+!.env.example
+
+!tests/fixtures/synthetic-invoice.eml
+.test-artifacts/

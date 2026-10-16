@@ -1,0 +1,30 @@
+{
+  "name": "e-invoiceviewer",
+  "version": "1.2.0",
+  "description": "Visualizzatore di fatture elettroniche italiane in formato Assosoftware",
+  "keywords": [
+    "thunderbird",
+    "fatturapa",
+    "fattura-elettronica",
+    "pec",
+    "p7m"
+  ],
+  "license": "ISC",
+  "author": "Edoardo Ghedina",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build": "python scripts/build.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "homepage": "https://quadra.acortina.it",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ghedy/e-invoiceviewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ghedy/e-invoiceviewer/issues"
+  }
+}

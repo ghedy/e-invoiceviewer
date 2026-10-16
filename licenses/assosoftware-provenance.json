@@ -1,0 +1,13 @@
+{
+  "file": "shared/assets/assofattura.xsl",
+  "owner": "AssoSoftware",
+  "page": "https://www.assosoftware.it/servizi-offerti/assoinvoice/",
+  "download": "https://www.assosoftware.it/wp-content/uploads/2025/03/FoglioStileAssoSoftware.zip",
+  "archive_entry": "FoglioStileAssoSoftware.xsl",
+  "sha256": "c5e472dee99b6795057a475ed1bfeafd1c5d2eed6f84d21aa4b41982af913601",
+  "verified_on": "2026-10-16",
+  "comparison": "byte-for-byte identical to official download",
+  "license_url": "https://www.assosoftware.it/wp-content/uploads/2022/09/licenza_AssoInvoice_1.0.0.pdf",
+  "license_file": "licenses/AssoInvoice-LICENSE.pdf",
+  "license_sha256": "1a7fdd8ca5e4a02ab55d2810450a0142bd00d99bf473846d4f99e545f9f8edc4"
+}

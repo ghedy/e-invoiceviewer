@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="it">
+<head><meta charset="utf-8"><title>Opzioni e-Invoice Viewer</title></head>
+<body>
+<h1>Mittenti delle fatture</h1>
+<p>Per impostazione predefinita vengono considerate solo le fatture con mittente dichiarato nel dominio pec.fatturapa.it, anche all’interno di postacert.eml.</p>
+<label><input id="allow-any" type="checkbox"> Consenti fatture da qualsiasi mittente</label>
+<p>Il campo mittente può essere falsificato: questo filtro non autentica la PEC e non garantisce l’assenza di virus.
+Disattivandolo potrai visualizzare anche fatture inoltrate o ricevute da altri indirizzi.
+La firma digitale non viene verificata. Gli stessi limiti sui contenuti restano sempre attivi.</p>
+<p id="status" role="status"></p>
+<hr>
+<p>e-Invoice Viewer di Edoardo Ghedina · <a href="https://quadra.acortina.it" target="_blank" rel="noopener noreferrer">Scopri gli altri programmi dell’autore</a> · <a href="https://github.com/ghedy" target="_blank" rel="noopener noreferrer">Profilo GitHub</a></p>
+<script src="options.js"></script>
+</body></html>
+
