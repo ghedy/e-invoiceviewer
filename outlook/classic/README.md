@@ -2,6 +2,8 @@
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
 
+[Scarica l’anteprima pubblica 0.1.6](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.6) · [Altri programmi dell’autore](https://quadra.acortina.it) · [GitHub ghedy](https://github.com/ghedy).
+
 ## Modifiche 0.1.6 — icona condivisa con Thunderbird
 
 Il pulsante **Visualizza fatture** usa la stessa icona della versione Thunderbird: foglio blu con righe e dettaglio arancione, senza scritte minute. La risorsa originale icons/invoice-64.png è incorporata nel componente Outlook durante la compilazione.
@@ -22,7 +24,7 @@ Questo è un filtro su indirizzi dichiarati, senza verifica della firma o della 
 
 Questa versione introduce dichiarazioni COM esplicite per il ciclo di avvio e per i comandi della barra. Outlook carica solo il ponte che legge gli allegati selezionati; il visualizzatore, la trasformazione XML/P7M e WebView2 vengono eseguiti da OutlookPreview.exe in un processo separato, soltanto dopo il clic su **Visualizza fatture**.
 
-È stata segnalata una chiusura di Outlook all’avvio con la versione 0.1.2. La causa precisa non è ancora confermata: questi cambiamenti e il nuovo registro tecnico permettono un collaudo più isolato e una diagnosi delle fasi di caricamento. Non costituiscono una conferma di risoluzione su Outlook reale.
+È stata segnalata una chiusura di Outlook all’avvio con la versione 0.1.2. La causa precisa non è ancora confermata: questi cambiamenti e il nuovo registro tecnico permettono un collaudo più isolato e una diagnosi delle fasi di caricamento. L’autore ha successivamente confermato l’avvio senza errori e l’apertura delle fatture sul proprio Outlook classico. Il collaudo non copre tutte le configurazioni Office.
 
 Restano incluse le correzioni dell’anteprima vuota e dell’inizializzazione grafica delle versioni precedenti.
 
@@ -86,7 +88,7 @@ Il nucleo di lettura e il protocollo di scambio sono verificati da 14 test autom
 
 Sono disponibili anche prove del passaggio dei file al processo del visualizzatore (mittenti consentiti/bloccati, opzione esplicita, EML e pulizia dei temporanei) e del caricamento reale in WebView2 con fattura sintetica. Gli script scripts/test_handoff.py e scripts/test_preview.py permettono di ripeterle senza collegarsi ad Outlook.
 
-L’avvio e i pulsanti devono ancora essere verificati in Outlook classico reale: il sistema di sviluppo dispone soltanto del nuovo Outlook. I test automatici non riproducono il processo Office o le interazioni con altri componenti aggiuntivi.
+L’autore ha confermato avvio e apertura delle fatture, comprese quelle nei messaggi allegati alla PEC, sul proprio Outlook classico a 64 bit. Il sistema di sviluppo dispone soltanto del nuovo Outlook: le verifiche automatiche non riproducono il processo Office o le interazioni con altri componenti aggiuntivi. Non è stata eseguita una matrice completa di compatibilità.
 
 Da verificare: PEC con postacert come file EML e come messaggio Outlook incorporato, firme S/MIME del messaggio, download degli allegati, caselle Exchange, finestre Explorer/Inspector, stampa multipagina e rimozione.
 

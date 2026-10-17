@@ -1,16 +1,36 @@
-# e-Invoice Viewer per Thunderbird
+# e-Invoice Viewer per Thunderbird e Outlook classico
 
 ![Icona](icons/invoice-64.png)
 
-**Apri e stampa le fatture elettroniche direttamente dai messaggi di Thunderbird.**
+**Apri e stampa le fatture elettroniche italiane dai messaggi di Thunderbird o Outlook classico per Windows.**
 
 Leggi XML e P7M con il foglio di stile AssoSoftware, consulta i PDF incorporati e stampa soltanto la fattura selezionata. L’elaborazione avviene sul tuo dispositivo, senza inviare le fatture a servizi esterni.
 
 **[Scopri gli altri programmi dell’autore](https://quadra.acortina.it)** · [Edoardo Ghedina su GitHub](https://github.com/ghedy)
 
-**[Scarica e-Invoice Viewer 1.2.0](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0)**
+## Download
 
-## Installazione
+| Programma di posta | Versione | Pacchetto e istruzioni |
+| --- | --- | --- |
+| Thunderbird 128 o successivo | 1.2.0 | [Scarica il componente XPI](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0) |
+| Outlook classico per Windows | 0.1.6 — anteprima pubblica | [Scarica il pacchetto ZIP](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.6) · [Istruzioni Outlook](outlook/classic/README.md) |
+
+La versione Outlook richiede .NET Framework 4.8 o successivo e Microsoft Edge WebView2 Runtime. Scegli x64 oppure x86 in base all’architettura di **Outlook**. Non funziona con il nuovo Outlook, Outlook sul web o Outlook per Mac.
+
+## Outlook classico: prima installazione
+
+1. Estrai completamente lo ZIP in una cartella definitiva.
+2. Chiudi Outlook e apri la sottocartella x64 oppure x86 appropriata.
+3. Avvia **OutlookSetup.exe** e premi **Installa per questo utente**.
+4. Riapri Outlook, seleziona la PEC esterna e premi **Visualizza fatture** nel gruppo **Fatture elettroniche**. Non occorre aprire prima l’EML allegato.
+
+Per provare il visualizzatore senza installare l’integrazione, avvia **OutlookPreview.exe** e scegli la fattura sintetica inclusa. Se aggiorni un prototipo precedente, chiudi Outlook e rimuovi prima l’integrazione usando OutlookSetup.exe dalla vecchia cartella.
+
+Il filtro Outlook considera il mittente dichiarato del messaggio con la fattura oppure di un contenitore: quando coincide soltanto la PEC esterna, l’anteprima lo indica. Non verifica firma digitale, certificazione PEC o assenza di malware. [Riservatezza Outlook](outlook/classic/PRIVACY.md) · [Requisiti, rimozione e diagnostica](outlook/classic/README.md).
+
+La versione Outlook è un prototipo: funzionamento confermato dall’autore sul proprio Outlook classico, senza una matrice completa di compatibilità. Non è pubblicata sul Microsoft Marketplace.
+
+## Installazione Thunderbird
 
 Il file installabile è disponibile nella sezione **[Releases](https://github.com/ghedy/e-invoiceviewer/releases)**.
 
@@ -42,6 +62,8 @@ Sono disponibili [16 test automatici e una checklist di collaudo](docs/TESTING.m
 
 ## Sicurezza e riservatezza
 
+Le indicazioni qui sotto descrivono Thunderbird. Per file temporanei e diagnostica della versione Outlook consulta la [sua informativa](outlook/classic/PRIVACY.md).
+
 Il filtro confronta l’indirizzo completo dichiarato nel campo mittente; **non autentica la PEC** e non garantisce la sicurezza dei file.
 
 L’estensione **non verifica firme digitali, certificati, revoche o validità fiscale** e non esegue scansioni antivirus.
@@ -54,7 +76,7 @@ Per segnalare problemi non allegare documenti reali o dati cliente. Per vulnerab
 
 ## English
 
-View Italian electronic invoices (XML and P7M) directly in Thunderbird, open embedded PDFs and print the selected invoice. Documents are processed locally. Digital signatures and certified email authenticity are not verified. See the Italian instructions above to install the XPI package.
+View Italian electronic invoices (XML and P7M) directly in Thunderbird or classic Outlook for Windows, open embedded PDFs and print the selected invoice. The Outlook version is a public preview; new Outlook, Outlook on the web and Mac are not supported. Documents are processed locally. Digital signatures and certified email authenticity are not verified. See the Italian instructions above to install the XPI package.
 
 ## Sviluppo
 
@@ -79,4 +101,4 @@ Il progetto non dichiara affiliazioni ufficiali con AssoSoftware, Thunderbird o 
 
 Autore: **Edoardo Ghedina** · [Altri programmi](https://quadra.acortina.it) · [GitHub](https://github.com/ghedy).
 
-Il porting Outlook è previsto come fase successiva.
+Il codice della versione Outlook classico è in [outlook/classic](outlook/classic). Per costruire il pacchetto Windows: `python outlook/classic/scripts/build.py`. Requisiti e prove sono descritti nel [README Outlook](outlook/classic/README.md).
