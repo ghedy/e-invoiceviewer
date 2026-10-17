@@ -89,7 +89,7 @@ namespace EInvoiceViewer.OutlookClassic {
             print.Enabled=false; open.Enabled=false; files.DataSource=null;
             Invoice invoice=invoices.SelectedItem as Invoice;
             if(invoice==null) return;
-            status.Text=(invoice.SenderMatches ? "Mittente dichiarato SdI. " : "Provenienza non verificata. ")+
+            status.Text=(invoice.SenderMatches ? "Mittente dichiarato SdI. " : invoice.ContainerSenderMatches ? "Mittente dichiarato SdI nella PEC contenitore. " : "Provenienza non verificata. ")+
                 "Firma digitale, PEC e sicurezza degli allegati non verificate.";
             try {
                 string html=InvoiceEngine.Render(invoice,stylesheet);

@@ -66,9 +66,12 @@ namespace EInvoiceViewer.OutlookClassic {
                 foreach(InvoiceJobAttachment attachment in job.Attachments) {
                     try {
                         byte[] bytes=File.ReadAllBytes(Path.Combine(folder,attachment.File));
-                        if(attachment.Eml) invoices.AddRange(InvoiceEngine.ReadEml(bytes,job.AllowAnySender));
-                        else if(MailPolicy.IsInvoiceName(attachment.Name) && (job.AllowAnySender || attachment.SenderMatches))
-                            invoices.Add(InvoiceEngine.ReadInvoice(bytes,attachment.Name,attachment.SenderMatches));
+                        if(attachment.Eml) invoices.AddRange(InvoiceEngine.ReadEml(bytes,job.AllowAnySender,attachment.SenderMatches||attachment.ContainerSenderMatches));
+                        else if(MailPolicy.IsInvoiceName(attachment.Name) && (job.AllowAnySender || attachment.SenderMatches || attachment.ContainerSenderMatches)) {
+                            Invoice invoice=InvoiceEngine.ReadInvoice(bytes,attachment.Name,attachment.SenderMatches);
+                            invoice.ContainerSenderMatches=attachment.ContainerSenderMatches && !invoice.SenderMatches;
+                            invoices.Add(invoice);
+                        }
                     } catch(Exception error) {failures++; Diagnostics.Write("preview attachment failed",error);}
                 }
             } finally {JobProtocol.Clean(folder);}

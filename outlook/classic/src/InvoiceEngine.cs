@@ -14,6 +14,7 @@ namespace EInvoiceViewer.OutlookClassic {
         public string Name;
         public XmlDocument Document;
         public bool SenderMatches;
+        public bool ContainerSenderMatches;
         public override string ToString() { return Name; }
     }
     public sealed class EmbeddedFile {
@@ -115,10 +116,11 @@ namespace EInvoiceViewer.OutlookClassic {
             return String.IsNullOrWhiteSpace(name) ? "allegato" : name;
         }
         private sealed class Budget { public int Parts=200; public long Decoded=64L*1024*1024; }
-        public static IList<Invoice> ReadEml(byte[] bytes, bool allowAny) {
+        public static IList<Invoice> ReadEml(byte[] bytes, bool allowAny) {return ReadEml(bytes,allowAny,false);}
+        public static IList<Invoice> ReadEml(byte[] bytes, bool allowAny,bool containerMatches) {
             if (bytes.Length>MaxMessage) throw new InvalidDataException("Messaggio oltre 32 MiB.");
             List<Invoice> result=new List<Invoice>();
-            Message(Latin1.GetString(bytes),allowAny,new Budget(),0,result);
+            Message(Latin1.GetString(bytes),allowAny,containerMatches,new Budget(),0,result);
             return result;
         }
         private static Dictionary<string,string> Headers(string source,out string body) {
@@ -184,12 +186,12 @@ namespace EInvoiceViewer.OutlookClassic {
             if (budget.Decoded<0) throw new InvalidDataException("Messaggio MIME troppo complesso.");
             return bytes;
         }
-        private static void Message(string source,bool any,Budget budget,int depth,List<Invoice> result) {
+        private static void Message(string source,bool any,bool containerMatches,Budget budget,int depth,List<Invoice> result) {
             string body; Dictionary<string,string> headers=Headers(source,out body);
             string from=Get(headers,"From","");
-            Part(headers,body,from,any,budget,depth,result);
+            Part(headers,body,from,any,containerMatches,budget,depth,result);
         }
-        private static void Part(Dictionary<string,string> h,string body,string from,bool any,Budget budget,int depth,List<Invoice> result) {
+        private static void Part(Dictionary<string,string> h,string body,string from,bool any,bool containerMatches,Budget budget,int depth,List<Invoice> result) {
             if (--budget.Parts<0 || depth>6) throw new InvalidDataException("Troppe parti MIME o annidamento eccessivo.");
             string type=Get(h,"Content-Type","text/plain");
             if (type.StartsWith("multipart/",StringComparison.OrdinalIgnoreCase)) {
@@ -204,21 +206,23 @@ namespace EInvoiceViewer.OutlookClassic {
                     else if (end>=1 && body[end-1]=='\n') end--;
                     if (end<start) throw new InvalidDataException("Parte MIME vuota.");
                     string childBody; Dictionary<string,string> child=Headers(body.Substring(start,end-start),out childBody);
-                    Part(child,childBody,from,any,budget,depth+1,result);
+                    Part(child,childBody,from,any,containerMatches,budget,depth+1,result);
                 }
                 return;
             }
             string name=Parameter(Get(h,"Content-Disposition",""),"filename");
             if (name.Length==0) name=Parameter(type,"name");
             bool nested=type.Split(';')[0].Trim().Equals("message/rfc822",StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("postacert.eml",StringComparison.OrdinalIgnoreCase);
+                name.EndsWith(".eml",StringComparison.OrdinalIgnoreCase);
             if (nested) {
                 byte[] raw=Decode(body,h,budget);
                 if (raw.Length>MaxMessage) throw new InvalidDataException("Messaggio allegato troppo grande.");
-                Message(Latin1.GetString(raw),any,budget,depth+1,result);
-            } else if (IsInvoiceName(name) && (any || IsSdiSender(from))) {
+                Message(Latin1.GetString(raw),any,containerMatches||IsSdiSender(from),budget,depth+1,result);
+            } else if (IsInvoiceName(name) && (any || containerMatches || IsSdiSender(from))) {
                 byte[] raw=Decode(body,h,budget);
-                result.Add(ReadInvoice(raw,name,IsSdiSender(from)));
+                Invoice invoice=ReadInvoice(raw,name,IsSdiSender(from));
+                invoice.ContainerSenderMatches=containerMatches && !invoice.SenderMatches;
+                result.Add(invoice);
             }
         }
     }

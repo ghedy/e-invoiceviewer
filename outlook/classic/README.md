@@ -1,6 +1,14 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.3
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.4
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
+
+## Modifiche 0.1.4 — apertura dalla PEC esterna
+
+Il pulsante **Visualizza fatture** cerca direttamente nei messaggi EML allegati, anche se hanno un nome diverso da postacert.eml, e nei messaggi Outlook incorporati. Non occorre aprirli prima manualmente.
+
+Il filtro permette la lettura quando il mittente dichiarato del messaggio con la fattura **oppure di un suo contenitore** appartiene esattamente a pec.fatturapa.it. Se coincide soltanto il contenitore, l’anteprima indica **Mittente dichiarato SdI nella PEC contenitore**: non attribuisce quel mittente al messaggio interno. Un contenitore o messaggio interno con mittente SdI non autorizza altri messaggi affiancati. Se nessuno dei mittenti del percorso coincide, resta necessaria l’opzione esplicita **Consenti qualsiasi mittente**.
+
+Questo è un filtro su indirizzi dichiarati, senza verifica della firma o della certificazione PEC. Aprendo da solo un messaggio estratto si perde il contesto del contenitore esterno.
 
 ## Modifiche 0.1.3 e arresto all’avvio
 
@@ -26,7 +34,7 @@ Aggiunge alla scheda della posta un gruppo **Fatture elettroniche**, con il puls
 
 Legge XML/P7M, postacert.eml e messaggi incorporati di Outlook; apre una finestra dedicata con selezione delle fatture, allegati e stampa del solo documento. La trasformazione AssoSoftware è eseguita da .NET, senza dipendere da XSLT nel browser.
 
-Il filtro confronta il mittente dichiarato con pec.fatturapa.it, anche dentro il messaggio PEC. Non autentica la PEC. La firma digitale non viene verificata e non sono eseguite scansioni antivirus.
+Il filtro confronta il mittente dichiarato del messaggio o dei suoi contenitori con pec.fatturapa.it. Non autentica la PEC. La firma digitale non viene verificata e non sono eseguite scansioni antivirus.
 
 ## Requisiti
 
@@ -66,7 +74,7 @@ Per rimuovere l’integrazione, chiudi Outlook e usa **Rimuovi integrazione** ne
 
 ## Stato del collaudo
 
-Il nucleo di lettura e il protocollo di scambio sono verificati da 13 test automatici. Le prove COM chiamano le vere interfacce native di avvio e della barra, con array personalizzati nulli e vuoti, sia a 32 che a 64 bit, in processi di prova separati da Outlook. Viene controllato che il ponte non dipenda da WebView2 o dal motore XML.
+Il nucleo di lettura e il protocollo di scambio sono verificati da 14 test automatici. Le prove COM chiamano le vere interfacce native di avvio e della barra, con array personalizzati nulli e vuoti, sia a 32 che a 64 bit, in processi di prova separati da Outlook. Le prove di raccolta simulano inoltre EML con nome generico, messaggi Outlook incorporati e mittenti esterni/interni diversi. Viene controllato che il ponte non dipenda da WebView2 o dal motore XML.
 
 Sono disponibili anche prove del passaggio dei file al processo del visualizzatore (mittenti consentiti/bloccati, opzione esplicita, EML e pulizia dei temporanei) e del caricamento reale in WebView2 con fattura sintetica. Gli script scripts/test_handoff.py e scripts/test_preview.py permettono di ripeterle senza collegarsi ad Outlook.
 

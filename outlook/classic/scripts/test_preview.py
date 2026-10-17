@@ -9,7 +9,7 @@ project = Path(__file__).resolve().parents[1]
 root = project.parents[1]
 arch = sys.argv[1] if len(sys.argv) > 1 else "x64"
 assert arch in ("x86", "x64")
-package = root / "dist/outlook-classic-0.1.3" / arch
+package = root / "dist/outlook-classic-0.1.4" / arch
 work = root / ".test-artifacts" / ("preview-render-" + arch)
 work.mkdir(parents=True, exist_ok=True)
 names = ("OutlookPreview.exe", "Microsoft.Web.WebView2.Core.dll",

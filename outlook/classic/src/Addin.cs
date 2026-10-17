@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("e-Invoice Viewer for classic Outlook")]
-[assembly: AssemblyVersion("0.1.3.0")]
+[assembly: AssemblyVersion("0.1.4.0")]
 [assembly: ComVisible(false)]
 
 namespace EInvoiceViewer.OutlookClassic {
@@ -92,7 +92,7 @@ namespace EInvoiceViewer.OutlookClassic {
                 List<string> failures=new List<string>();
                 int budget=200;
                 long bytesRemaining=64L*1024*1024;
-                Collect(item,temp,job.AllowAnySender,0,ref budget,ref bytesRemaining,job.Attachments,failures);
+                Collect(item,temp,job.AllowAnySender,false,0,ref budget,ref bytesRemaining,job.Attachments,failures);
                 if(job.Attachments.Count==0) {
                     string message="Nessuna fattura leggibile trovata. Il filtro consente solo mittenti dichiarati nel dominio pec.fatturapa.it; puoi ampliarlo dalla barra Fatture elettroniche.";
                     if(failures.Count>0) message+="\n\nUno o più allegati non sono stati letti: "+String.Join("; ",failures.ToArray());
@@ -116,7 +116,7 @@ namespace EInvoiceViewer.OutlookClassic {
                 busy=false;Diagnostics.Write("OpenInvoice exit");
             }
         }
-        private void Collect(object item,string temp,bool any,int depth,ref int budget,ref long bytesRemaining,List<InvoiceJobAttachment> attachmentsToOpen,List<string> failures) {
+        private void Collect(object item,string temp,bool any,bool containerMatches,int depth,ref int budget,ref long bytesRemaining,List<InvoiceJobAttachment> attachmentsToOpen,List<string> failures) {
             if(depth>4 || budget<=0) return;
             string sender="";
             try {sender=(string)((dynamic)item).SenderEmailAddress;}
@@ -138,11 +138,11 @@ namespace EInvoiceViewer.OutlookClassic {
                     try {
                         attachment=((dynamic)attachments).Item(i);
                         string name=(string)((dynamic)attachment).FileName;
-                        bool nested=String.Equals(name,"postacert.eml",StringComparison.OrdinalIgnoreCase);
-                        if(!nested && !(MailPolicy.IsInvoiceName(name) && (any||trusted))) continue;
+                        bool embedded=(int)((dynamic)attachment).Type==5;
+                        bool nested=embedded || (name!=null && name.EndsWith(".eml",StringComparison.OrdinalIgnoreCase));
+                        if(!nested && !(MailPolicy.IsInvoiceName(name) && (any||trusted||containerMatches))) continue;
                         int max=nested ? MailPolicy.MaxMessage : MailPolicy.MaxFile;
                         if((int)((dynamic)attachment).Size>max) {failures.Add("file oltre il limite");continue;}
-                        bool embedded=nested && (int)((dynamic)attachment).Type==5;
                         string path=Path.Combine(temp,Guid.NewGuid().ToString("N")+(embedded?".msg":".bin"));
                         ((dynamic)attachment).SaveAsFile(path);
                         long length=new FileInfo(path).Length;
@@ -152,11 +152,11 @@ namespace EInvoiceViewer.OutlookClassic {
                             object session=((dynamic)application).Session, inner=null;
                             try {
                                 inner=((dynamic)session).OpenSharedItem(path);
-                                if((int)((dynamic)inner).Class==43) Collect(inner,temp,any,depth+1,ref budget,ref bytesRemaining,attachmentsToOpen,failures);
+                                if((int)((dynamic)inner).Class==43) Collect(inner,temp,any,containerMatches||trusted,depth+1,ref budget,ref bytesRemaining,attachmentsToOpen,failures);
                             } finally {Release(inner);Release(session);}
                         } else {
                             attachmentsToOpen.Add(new InvoiceJobAttachment {
-                                File=Path.GetFileName(path),Name=name,Eml=nested,SenderMatches=trusted
+                                File=Path.GetFileName(path),Name=name,Eml=nested,SenderMatches=trusted,ContainerSenderMatches=containerMatches
                             });
                         }
                     } catch {if(failures.Count<8) failures.Add("contenuto non supportato o malformato");}

@@ -25,7 +25,7 @@ assert compiler.exists(), ".NET Framework compiler not available"
 provenance = json.loads((root / "licenses/assosoftware-provenance.json").read_text(encoding="utf-8-sig"))
 assert hashlib.sha256((root / provenance["file"]).read_bytes()).hexdigest() == provenance["sha256"], "AssoSoftware XSL was modified"
 assert hashlib.sha256((root / provenance["license_file"]).read_bytes()).hexdigest() == provenance["license_sha256"], "AssoSoftware license was modified"
-output = root / "dist" / "outlook-classic-0.1.3"
+output = root / "dist" / "outlook-classic-0.1.4"
 sdk = cache / "sdk"
 sdk.mkdir(exist_ok=True)
 with zipfile.ZipFile(package) as archive:
@@ -57,6 +57,11 @@ with zipfile.ZipFile(package) as archive:
                         str(project / "tests/ComStartupTests.cs")], check=True)
         shutil.copyfile(folder / "EInvoiceViewer.Outlook.dll", cache / "EInvoiceViewer.Outlook.dll")
         subprocess.run([str(com_test)], check=True, timeout=30)
+        collection_test = cache / ("AttachmentCollectionTests-" + arch + ".exe")
+        subprocess.run([str(compiler), "/nologo", "/target:exe", "/platform:" + arch,
+                        "/out:" + str(collection_test), "/reference:" + str(folder / "EInvoiceViewer.Outlook.dll"),
+                        str(project / "tests/AttachmentCollectionTests.cs")], check=True)
+        subprocess.run([str(collection_test)], check=True, timeout=30)
         subprocess.run([str(folder / "OutlookPreview.exe"), "--startup-test"], check=True, timeout=30)
         print(arch + ": native WinForms startup passed")
         (folder / "shared/assets").mkdir(parents=True,exist_ok=True)
@@ -81,7 +86,7 @@ command = [str(compiler), "/nologo", "/utf8output", "/target:exe", "/out:" + str
            str(project / "tests/InvoiceEngineTests.cs")]
 subprocess.run(command, check=True)
 subprocess.run([str(test_exe), str(root)], check=True)
-archive_path = root / "dist/outlook-classic-0.1.3-prototype.zip"
+archive_path = root / "dist/outlook-classic-0.1.4-prototype.zip"
 # Include only the files produced for this prototype, never arbitrary folder contents.
 payload_names = [
     "EInvoiceViewer.Outlook.dll", "OutlookPreview.exe", "OutlookSetup.exe",

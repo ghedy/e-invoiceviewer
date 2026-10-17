@@ -12,13 +12,17 @@ base = Path(tempfile.gettempdir()) / "e-invoiceviewer-outlook"
 base.mkdir(exist_ok=True)
 xml = (root / "tests/fixtures/IT00000000000_TEST01.xml").read_bytes()
 eml = (root / "tests/fixtures/synthetic-invoice.eml").read_bytes()
+vendor_eml = eml.replace(b"sdi01@pec.fatturapa.it", b"vendor@example.org")
+assert vendor_eml != eml
 for arch in ("x86", "x64"):
-    exe = root / "dist/outlook-classic-0.1.3" / arch / "OutlookPreview.exe"
+    exe = root / "dist/outlook-classic-0.1.4" / arch / "OutlookPreview.exe"
     for label, payload, allow, sender, nested, expected in (
         ("trusted", xml, False, True, False, True),
         ("blocked", xml, False, False, False, False),
         ("explicit-option", xml, True, False, False, True),
         ("eml", eml, False, False, True, True),
+        ("outer-pec", vendor_eml, False, True, True, True),
+        ("unrelated-eml", vendor_eml, False, False, True, False),
     ):
         folder = base / uuid.uuid4().hex
         folder.mkdir()

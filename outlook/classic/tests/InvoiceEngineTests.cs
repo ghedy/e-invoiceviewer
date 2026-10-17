@@ -71,14 +71,29 @@ internal static class InvoiceEngineTests {
                 byte[] message=File.ReadAllBytes(Path.Combine(root,"tests/fixtures/synthetic-invoice.eml"));
                 Check(InvoiceEngine.ReadEml(message,false).Count==1,"fixture");
             });
-            Test("nested PEC checks inner sender independently",delegate {
+            Test("PEC container sender permits nested invoices without claiming inner sender",delegate {
                 string inner=Eml("sdi01@pec.fatturapa.it","invoice.xml",Convert.ToBase64String(Bytes(xml)),"base64");
                 string wrapper=Eml("provider@example.org","postacert.eml",Convert.ToBase64String(Bytes(inner)),"base64");
                 Check(InvoiceEngine.ReadEml(Bytes(wrapper),false).Count==1,"inner trusted");
                 string evil=inner.Replace("sdi01@pec.fatturapa.it","evil@example.org");
                 wrapper=Eml("sdi01@pec.fatturapa.it","postacert.eml",Convert.ToBase64String(Bytes(evil)),"base64");
-                Check(InvoiceEngine.ReadEml(Bytes(wrapper),false).Count==0,"no inherited trust");
+                Invoice nested=InvoiceEngine.ReadEml(Bytes(wrapper),false)[0];
+                Check(!nested.SenderMatches && nested.ContainerSenderMatches,"container provenance");
+                wrapper=wrapper.Replace("From: sdi01@pec.fatturapa.it","From: unrelated@example.org");
+                Check(InvoiceEngine.ReadEml(Bytes(wrapper),false).Count==0,"unrelated container blocked");
                 Check(InvoiceEngine.ReadEml(Bytes(wrapper),true).Count==1,"explicit option");
+            });
+            Test("generic EML names and sibling branches keep separate sender contexts",delegate {
+                string inner=Eml("vendor@example.org","invoice.xml",Convert.ToBase64String(Bytes(xml)),"base64");
+                string wrapper=Eml("sdi01@pec.fatturapa.it","messaggio-originale.eml",Convert.ToBase64String(Bytes(inner)),"base64");
+                Check(InvoiceEngine.ReadEml(Bytes(wrapper),false)[0].ContainerSenderMatches,"generic eml");
+                Check(InvoiceEngine.ReadEml(Bytes(inner),false).Count==0,"standalone inner remains filtered");
+                Check(InvoiceEngine.ReadEml(Bytes(inner),false,true)[0].ContainerSenderMatches,"Outlook outer context");
+                string trusted=Eml("sdi01@pec.fatturapa.it","a.xml",Convert.ToBase64String(Bytes(xml)),"base64");
+                string siblings="From: unrelated@example.org\r\nContent-Type: multipart/mixed; boundary=siblings\r\n\r\n";
+                foreach(string message in new[]{trusted,inner}) siblings+="--siblings\r\nContent-Type: message/rfc822\r\n\r\n"+message+"\r\n";
+                siblings+="--siblings--\r\n";
+                Check(InvoiceEngine.ReadEml(Bytes(siblings),false).Count==1,"sibling context isolated");
             });
             Test("quoted-printable preserves accented invoice text",delegate {
                 string value=String.Concat(Bytes(xml).Select(b=>"="+b.ToString("X2")).ToArray());
@@ -123,7 +138,7 @@ internal static class InvoiceEngineTests {
                 } finally {JobProtocol.Clean(folder);}
                 Check(!Directory.Exists(folder),"temporary cleanup");
             });
-            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.3/x64/EInvoiceViewer.Outlook.dll"));
+            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.4/x64/EInvoiceViewer.Outlook.dll"));
             object addin=Activator.CreateInstance(addinAssembly.GetType("EInvoiceViewer.OutlookClassic.Addin",true));
             Test("COM entry supports the Office add-in and ribbon interfaces",delegate {
                 IntPtr unknown=Marshal.GetIUnknownForObject(addin);
