@@ -15,7 +15,7 @@ eml = (root / "tests/fixtures/synthetic-invoice.eml").read_bytes()
 vendor_eml = eml.replace(b"sdi01@pec.fatturapa.it", b"vendor@example.org")
 assert vendor_eml != eml
 for arch in ("x86", "x64"):
-    exe = root / "dist/outlook-classic-0.1.6" / arch / "OutlookPreview.exe"
+    exe = root / "dist/outlook-classic-0.1.7" / arch / "OutlookPreview.exe"
     for label, payload, allow, sender, nested, expected in (
         ("trusted", xml, False, True, False, True),
         ("blocked", xml, False, False, False, False),

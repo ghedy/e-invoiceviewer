@@ -13,7 +13,7 @@ Leggi XML e P7M con il foglio di stile AssoSoftware, consulta i PDF incorporati 
 | Programma di posta | Versione | Pacchetto e istruzioni |
 | --- | --- | --- |
 | Thunderbird 128 o successivo | 1.2.0 | [Scarica il componente XPI](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0) |
-| Outlook classico per Windows | 0.1.6 — anteprima pubblica | [Scarica il pacchetto ZIP](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.6) · [Istruzioni Outlook](outlook/classic/README.md) |
+| Outlook classico per Windows | 0.1.7 — anteprima pubblica | [Scarica il pacchetto ZIP](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.7) · [Istruzioni Outlook](outlook/classic/README.md) |
 
 La versione Outlook richiede .NET Framework 4.8 o successivo e Microsoft Edge WebView2 Runtime. Scegli x64 oppure x86 in base all’architettura di **Outlook**. Non funziona con il nuovo Outlook, Outlook sul web o Outlook per Mac.
 

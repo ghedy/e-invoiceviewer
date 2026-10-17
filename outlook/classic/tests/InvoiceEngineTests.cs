@@ -138,7 +138,7 @@ internal static class InvoiceEngineTests {
                 } finally {JobProtocol.Clean(folder);}
                 Check(!Directory.Exists(folder),"temporary cleanup");
             });
-            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.6/x64/EInvoiceViewer.Outlook.dll"));
+            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.7/x64/EInvoiceViewer.Outlook.dll"));
             object addin=Activator.CreateInstance(addinAssembly.GetType("EInvoiceViewer.OutlookClassic.Addin",true));
             Test("COM entry supports the Office add-in and ribbon interfaces",delegate {
                 IntPtr unknown=Marshal.GetIUnknownForObject(addin);

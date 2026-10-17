@@ -1,8 +1,12 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.6
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.7
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
 
-[Scarica l’anteprima pubblica 0.1.6](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.6) · [Altri programmi dell’autore](https://quadra.acortina.it) · [GitHub ghedy](https://github.com/ghedy).
+[Scarica l’anteprima pubblica 0.1.7](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.7) · [Altri programmi dell’autore](https://quadra.acortina.it) · [GitHub ghedy](https://github.com/ghedy).
+
+## Modifiche 0.1.7 — titolo e icona della finestra
+
+La finestra di visualizzazione si intitola **e-Invoice Viewer — Outlook** e usa la stessa icona del pulsante principale e della versione Thunderbird. Il setup si intitola **e-Invoice Viewer — Configurazione Outlook** e usa la stessa icona, presente anche nella finestra di diagnostica e nei due programmi eseguibili Windows.
 
 ## Modifiche 0.1.6 — icona condivisa con Thunderbird
 

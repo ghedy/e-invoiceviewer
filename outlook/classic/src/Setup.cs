@@ -12,7 +12,8 @@ namespace EInvoiceViewer.OutlookClassic {
         private const string ClassName="EInvoiceViewer.OutlookClassic.Addin";
         [STAThread] private static void Main() {
             Application.EnableVisualStyles();
-            Form form=new Form {Text="e-Invoice Viewer — configurazione prototipo",Width=570,Height=220};
+            Form form=new Form {Text="e-Invoice Viewer — Configurazione Outlook",Width=570,Height=220};
+            WindowBranding.Apply(form);
             FlowLayoutPanel panel=new FlowLayoutPanel {Dock=DockStyle.Fill,Padding=new Padding(12)};
             panel.Controls.Add(new Label {Text="Solo Outlook classico per Windows. Chiudi Outlook prima di installare o rimuovere.\nQuesta cartella deve restare nella posizione attuale dopo l’installazione.\nPacchetto: "+(Environment.Is64BitProcess?"64":"32")+" bit.",AutoSize=true,MaximumSize=new System.Drawing.Size(520,0)});
             Button install=new Button {Text="Installa per questo utente",AutoSize=true};
@@ -21,7 +22,7 @@ namespace EInvoiceViewer.OutlookClassic {
             diagnostics.Click+=delegate {
                 try {
                     string content=File.Exists(Diagnostics.LogPath)?File.ReadAllText(Diagnostics.LogPath):"Nessun registro disponibile. Il componente potrebbe non essere stato caricato da Outlook.";
-                    using(Form log=new Form {Text="e-Invoice Viewer — diagnostica",Width=780,Height=500}) {
+                    using(Form log=new Form {Text="e-Invoice Viewer — Diagnostica Outlook",Icon=form.Icon,Width=780,Height=500}) {
                         log.Controls.Add(new TextBox {Dock=DockStyle.Fill,Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Both,WordWrap=false,Text=content});
                         log.ShowDialog(form);
                     }

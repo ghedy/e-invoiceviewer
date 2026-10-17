@@ -30,8 +30,10 @@ internal static class PreviewRenderTests {
                     for(int i=0;i<45;i++) {
                         await Task.Delay(1000);
                         bool ready=(bool)typeof(ViewerForm).GetField("ready",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(form);
-                        if(ready) break;
+                        Button print=(Button)typeof(ViewerForm).GetField("print",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(form);
+                        if(ready && print.Enabled) break;
                     }
+                    Console.WriteLine("Window: "+form.Text+"; icon: "+form.Icon.Size);
                     Console.WriteLine("WebView bounds: "+web.Bounds);
                     string metrics=await web.CoreWebView2.ExecuteScriptAsync("({supplier: document.body.innerText.indexOf('FORNITORE FITTIZIO') >= 0, textLength: document.body.innerText.length, width: innerWidth, height: innerHeight, contentHeight: document.documentElement.scrollHeight, encoding: document.characterSet})");
                     Console.WriteLine(metrics);

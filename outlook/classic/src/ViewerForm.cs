@@ -25,7 +25,8 @@ namespace EInvoiceViewer.OutlookClassic {
         private bool ready;
         public ViewerForm(IList<Invoice> data,string xsl) {
             stylesheet=xsl;
-            Text="e-Invoice Viewer — Outlook classico (prototipo)";
+            Text="e-Invoice Viewer — Outlook";
+            WindowBranding.Apply(this);
             Width=1060; Height=850;
             Font=new Font("Segoe UI",9);
             FlowLayoutPanel toolbar=new FlowLayoutPanel {Dock=DockStyle.Top,AutoSize=true,Padding=new Padding(8),WrapContents=true};
