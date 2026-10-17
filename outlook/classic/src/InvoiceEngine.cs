@@ -33,17 +33,8 @@ namespace EInvoiceViewer.OutlookClassic {
             "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2",
             "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.0"
         };
-        public static bool IsSdiSender(string from) {
-            if (String.IsNullOrWhiteSpace(from) || from.Contains("\r") || from.Contains("\n")) return false;
-            Match mailbox=Regex.Match(from.Trim(),@"^(?:""[^""<>]*""|[^""<>,;]*)<(?<mail>[^<>]+)>$");
-            string address=(mailbox.Success?mailbox.Groups["mail"].Value:from).Trim();
-            return Regex.IsMatch(address,@"^[a-z0-9.!#$%&'*+/=?^_{|}~-]+@pec\.fatturapa\.it$",RegexOptions.IgnoreCase);
-        }
-        public static bool IsInvoiceName(string name) {
-            return name != null && name.IndexOf("_MT_", StringComparison.OrdinalIgnoreCase) < 0 &&
-                name.IndexOfAny(new char[] {'/','\\','\0','\r','\n'}) < 0 &&
-                Regex.IsMatch(name, @"\.(xml|p7m)$", RegexOptions.IgnoreCase);
-        }
+        public static bool IsSdiSender(string from) {return MailPolicy.IsSdiSender(from);}
+        public static bool IsInvoiceName(string name) {return MailPolicy.IsInvoiceName(name);}
         public static Invoice ReadInvoice(byte[] bytes, string name, bool senderMatches) {
             if (bytes.Length > MaxFile) throw new InvalidDataException("Fattura oltre 20 MiB.");
             if (name.EndsWith(".p7m", StringComparison.OrdinalIgnoreCase)) {

@@ -1,12 +1,24 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.2
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.3
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
 
-## Correzioni 0.1.2
+## Modifiche 0.1.3 e arresto all’avvio
 
-Corretto il filtro di navigazione che bloccava l’HTML interno e lasciava vuota l’anteprima. È autorizzato solo l’indirizzo completo del documento generato dall’applicazione; gli altri indirizzi restano bloccati. L’HTML viene emesso in UTF-8 coerente con il visualizzatore. I fallimenti di navigazione ora mostrano un messaggio con il codice tecnico, senza registrare il contenuto delle fatture.
+Questa versione introduce dichiarazioni COM esplicite per il ciclo di avvio e per i comandi della barra. Outlook carica solo il ponte che legge gli allegati selezionati; il visualizzatore, la trasformazione XML/P7M e WebView2 vengono eseguiti da OutlookPreview.exe in un processo separato, soltanto dopo il clic su **Visualizza fatture**.
 
-Resta inclusa la correzione 0.1.1: inizializzazione grafica prima della finestra di scelta file.
+È stata segnalata una chiusura di Outlook all’avvio con la versione 0.1.2. La causa precisa non è ancora confermata: questi cambiamenti e il nuovo registro tecnico permettono un collaudo più isolato e una diagnosi delle fasi di caricamento. Non costituiscono una conferma di risoluzione su Outlook reale.
+
+Restano incluse le correzioni dell’anteprima vuota e dell’inizializzazione grafica delle versioni precedenti.
+
+### Aggiornamento dopo il blocco di Outlook
+
+1. Chiudi Outlook.
+2. Apri OutlookSetup.exe dalla **vecchia cartella** e premi **Rimuovi integrazione**.
+3. Estrai il nuovo pacchetto in una cartella definitiva e avvia OutlookSetup.exe dalla sottocartella corretta (x64 per Outlook a 64 bit).
+4. Premi **Installa per questo utente**, quindi prova l’avvio di Outlook.
+5. Se Outlook segnala ancora il componente disabilitato o si chiude, non selezionare “Abilita sempre”: chiudilo, rimuovi l’integrazione e usa **Mostra diagnostica** per leggere/copiare il registro. Il visualizzatore manuale OutlookPreview.exe resta utilizzabile.
+
+Il pacchetto mantiene gli stessi identificativi del componente precedente; non cancella né aggira l’elenco dei componenti bloccati da Outlook. Il registro contiene versione, orario, processo, fasi di avvio e tipo/codice degli errori, senza contenuti delle email. Se il blocco avviene prima che il codice venga caricato, il registro può essere assente.
 
 ## Cosa fa
 
@@ -54,9 +66,11 @@ Per rimuovere l’integrazione, chiudi Outlook e usa **Rimuovi integrazione** ne
 
 ## Stato del collaudo
 
-Il nucleo di lettura, MIME, XML, P7M e trasformazione è verificato da 12 test automatici. La compilazione genera pacchetti x86 e x64. Dalla versione 0.1.2 è stata eseguita anche una prova di caricamento reale in WebView2 con fattura sintetica e cattura dell’anteprima; lo script scripts/test_preview.py permette di ripeterla senza collegarsi ad Outlook.
+Il nucleo di lettura e il protocollo di scambio sono verificati da 13 test automatici. Le prove COM chiamano le vere interfacce native di avvio e della barra, con array personalizzati nulli e vuoti, sia a 32 che a 64 bit, in processi di prova separati da Outlook. Viene controllato che il ponte non dipenda da WebView2 o dal motore XML.
 
-L’aggancio COM e i pulsanti della barra devono ancora essere collaudati in Outlook reale: sul sistema di sviluppo non è stata rilevata un’installazione utilizzabile di Outlook. Non è garantito che il prototipo si carichi in tutte le configurazioni.
+Sono disponibili anche prove del passaggio dei file al processo del visualizzatore (mittenti consentiti/bloccati, opzione esplicita, EML e pulizia dei temporanei) e del caricamento reale in WebView2 con fattura sintetica. Gli script scripts/test_handoff.py e scripts/test_preview.py permettono di ripeterle senza collegarsi ad Outlook.
+
+L’avvio e i pulsanti devono ancora essere verificati in Outlook classico reale: il sistema di sviluppo dispone soltanto del nuovo Outlook. I test automatici non riproducono il processo Office o le interazioni con altri componenti aggiuntivi.
 
 Da verificare: PEC con postacert come file EML e come messaggio Outlook incorporato, firme S/MIME del messaggio, download degli allegati, caselle Exchange, finestre Explorer/Inspector, stampa multipagina e rimozione.
 

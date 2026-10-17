@@ -107,7 +107,23 @@ internal static class InvoiceEngineTests {
                 value=value.Replace(pdf,Convert.ToBase64String(Bytes("<html>active</html>")));
                 Check(!InvoiceEngine.Embedded(InvoiceEngine.ReadInvoice(Bytes(value),"a.xml",false))[0].Pdf,"fake pdf");
             });
-            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.2/x64/EInvoiceViewer.Outlook.dll"));
+            Test("process handoff validates paths, policy and cleanup",delegate {
+                string folder=JobProtocol.CreateFolder();
+                try {
+                    string name=Guid.NewGuid().ToString("N")+".bin";
+                    File.WriteAllText(Path.Combine(folder,name),xml);
+                    InvoiceJob job=new InvoiceJob();
+                    job.Attachments.Add(new InvoiceJobAttachment {File=name,Name="test.xml",SenderMatches=true});
+                    string path=JobProtocol.Write(folder,job);
+                    Check(JobProtocol.Read(path).Attachments.Count==1,"job round trip");
+                    job.Attachments[0].File="../outside.xml";
+                    JobProtocol.Write(folder,job);Reject(()=>JobProtocol.Read(path));
+                    job.Attachments[0].File=name;job.ProtocolVersion=9;
+                    JobProtocol.Write(folder,job);Reject(()=>JobProtocol.Read(path));
+                } finally {JobProtocol.Clean(folder);}
+                Check(!Directory.Exists(folder),"temporary cleanup");
+            });
+            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.3/x64/EInvoiceViewer.Outlook.dll"));
             object addin=Activator.CreateInstance(addinAssembly.GetType("EInvoiceViewer.OutlookClassic.Addin",true));
             Test("COM entry supports the Office add-in and ribbon interfaces",delegate {
                 IntPtr unknown=Marshal.GetIUnknownForObject(addin);

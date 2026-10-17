@@ -17,7 +17,17 @@ namespace EInvoiceViewer.OutlookClassic {
             panel.Controls.Add(new Label {Text="Solo Outlook classico per Windows. Chiudi Outlook prima di installare o rimuovere.\nQuesta cartella deve restare nella posizione attuale dopo l’installazione.\nPacchetto: "+(Environment.Is64BitProcess?"64":"32")+" bit.",AutoSize=true,MaximumSize=new System.Drawing.Size(520,0)});
             Button install=new Button {Text="Installa per questo utente",AutoSize=true};
             Button remove=new Button {Text="Rimuovi integrazione",AutoSize=true};
-            panel.Controls.Add(install); panel.Controls.Add(remove); form.Controls.Add(panel);
+            Button diagnostics=new Button {Text="Mostra diagnostica",AutoSize=true};
+            diagnostics.Click+=delegate {
+                try {
+                    string content=File.Exists(Diagnostics.LogPath)?File.ReadAllText(Diagnostics.LogPath):"Nessun registro disponibile. Il componente potrebbe non essere stato caricato da Outlook.";
+                    using(Form log=new Form {Text="e-Invoice Viewer — diagnostica",Width=780,Height=500}) {
+                        log.Controls.Add(new TextBox {Dock=DockStyle.Fill,Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Both,WordWrap=false,Text=content});
+                        log.ShowDialog(form);
+                    }
+                } catch {MessageBox.Show("Impossibile leggere il registro tecnico.","e-Invoice Viewer");}
+            };
+            panel.Controls.Add(install); panel.Controls.Add(remove);panel.Controls.Add(diagnostics); form.Controls.Add(panel);
             install.Click+=delegate {Change(true);};
             remove.Click+=delegate {Change(false);};
             Application.Run(form);

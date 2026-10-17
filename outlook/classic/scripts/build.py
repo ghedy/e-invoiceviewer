@@ -25,7 +25,7 @@ assert compiler.exists(), ".NET Framework compiler not available"
 provenance = json.loads((root / "licenses/assosoftware-provenance.json").read_text(encoding="utf-8-sig"))
 assert hashlib.sha256((root / provenance["file"]).read_bytes()).hexdigest() == provenance["sha256"], "AssoSoftware XSL was modified"
 assert hashlib.sha256((root / provenance["license_file"]).read_bytes()).hexdigest() == provenance["license_sha256"], "AssoSoftware license was modified"
-output = root / "dist" / "outlook-classic-0.1.2"
+output = root / "dist" / "outlook-classic-0.1.3"
 sdk = cache / "sdk"
 sdk.mkdir(exist_ok=True)
 with zipfile.ZipFile(package) as archive:
@@ -33,13 +33,13 @@ with zipfile.ZipFile(package) as archive:
         (sdk / name).write_bytes(archive.read("lib/net462/" + name))
     license_text = archive.read("LICENSE.txt")
     refs = ["System.dll", "System.Core.dll", "System.Xml.dll", "System.Security.dll",
-            "System.Windows.Forms.dll", "System.Drawing.dll", "Microsoft.CSharp.dll",
+            "System.Windows.Forms.dll", "System.Drawing.dll", "Microsoft.CSharp.dll", "System.Web.Extensions.dll",
             str(sdk / "Microsoft.Web.WebView2.Core.dll"),
             str(sdk / "Microsoft.Web.WebView2.WinForms.dll")]
-    def compile_file(destination, sources, target, platform):
+    def compile_file(destination, sources, target, platform, viewer=True):
         command = [str(compiler), "/nologo", "/utf8output", "/optimize+", "/target:" + target,
                    "/platform:" + platform, "/out:" + str(destination)]
-        command += ["/reference:" + ref for ref in refs]
+        command += ["/reference:" + ref for ref in (refs if viewer else refs[:-2])]
         command += [str(project / "src" / source) for source in sources]
         subprocess.run(command, check=True)
     for arch in ("x86", "x64"):
@@ -48,9 +48,15 @@ with zipfile.ZipFile(package) as archive:
         for name in ("Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll"):
             shutil.copyfile(sdk / name, folder / name)
         (folder / "WebView2Loader.dll").write_bytes(archive.read("runtimes/win-" + arch + "/native/WebView2Loader.dll"))
-        compile_file(folder / "EInvoiceViewer.Outlook.dll", ["InvoiceEngine.cs", "ViewerForm.cs", "Addin.cs"], "library", "anycpu")
-        compile_file(folder / "OutlookPreview.exe", ["InvoiceEngine.cs", "ViewerForm.cs", "Preview.cs"], "winexe", arch)
-        compile_file(folder / "OutlookSetup.exe", ["Setup.cs"], "winexe", arch)
+        compile_file(folder / "EInvoiceViewer.Outlook.dll", ["Addin.cs", "BridgeSupport.cs"], "library", "anycpu", viewer=False)
+        compile_file(folder / "OutlookPreview.exe", ["InvoiceEngine.cs", "ViewerForm.cs", "BridgeSupport.cs", "Preview.cs"], "winexe", arch)
+        compile_file(folder / "OutlookSetup.exe", ["Setup.cs", "BridgeSupport.cs"], "winexe", arch, viewer=False)
+        com_test = cache / ("ComStartupTests-" + arch + ".exe")
+        subprocess.run([str(compiler), "/nologo", "/target:exe", "/platform:" + arch,
+                        "/out:" + str(com_test), "/reference:" + str(folder / "EInvoiceViewer.Outlook.dll"),
+                        str(project / "tests/ComStartupTests.cs")], check=True)
+        shutil.copyfile(folder / "EInvoiceViewer.Outlook.dll", cache / "EInvoiceViewer.Outlook.dll")
+        subprocess.run([str(com_test)], check=True, timeout=30)
         subprocess.run([str(folder / "OutlookPreview.exe"), "--startup-test"], check=True, timeout=30)
         print(arch + ": native WinForms startup passed")
         (folder / "shared/assets").mkdir(parents=True,exist_ok=True)
@@ -71,11 +77,11 @@ with zipfile.ZipFile(package) as archive:
 test_exe = cache / "InvoiceEngineTests.exe"
 command = [str(compiler), "/nologo", "/utf8output", "/target:exe", "/out:" + str(test_exe),
            "/reference:System.dll", "/reference:System.Core.dll", "/reference:System.Xml.dll",
-           "/reference:System.Security.dll", str(project / "src/InvoiceEngine.cs"),
+           "/reference:System.Security.dll", "/reference:System.Web.Extensions.dll", str(project / "src/BridgeSupport.cs"), str(project / "src/InvoiceEngine.cs"),
            str(project / "tests/InvoiceEngineTests.cs")]
 subprocess.run(command, check=True)
 subprocess.run([str(test_exe), str(root)], check=True)
-archive_path = root / "dist/outlook-classic-0.1.2-prototype.zip"
+archive_path = root / "dist/outlook-classic-0.1.3-prototype.zip"
 # Include only the files produced for this prototype, never arbitrary folder contents.
 payload_names = [
     "EInvoiceViewer.Outlook.dll", "OutlookPreview.exe", "OutlookSetup.exe",

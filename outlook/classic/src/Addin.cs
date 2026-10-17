@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -7,34 +8,49 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("e-Invoice Viewer for classic Outlook")]
-[assembly: AssemblyVersion("0.1.2.0")]
+[assembly: AssemblyVersion("0.1.3.0")]
 [assembly: ComVisible(false)]
 
 namespace EInvoiceViewer.OutlookClassic {
-    [ComVisible(true), Guid("B65AD801-ABAF-11D0-BB8B-00A0C90F2744"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    [ComVisible(true)] public enum ConnectMode {AfterStartup=0,Startup=1,External=2,CommandLine=3,Solution=4,UISetup=5}
+    [ComVisible(true)] public enum DisconnectMode {HostShutdown=0,UserClosed=1,UISetupComplete=2,SolutionClosed=3}
+    [ComVisible(true), Guid("B65AD801-ABAF-11D0-BB8B-00A0C90F2744"), InterfaceType(ComInterfaceType.InterfaceIsDual), TypeLibType(4160)]
     public interface IDTExtensibility2 {
-        [DispId(1)] void OnConnection([MarshalAs(UnmanagedType.IDispatch)] object application,int connectMode,[MarshalAs(UnmanagedType.IDispatch)] object addin,ref Array custom);
-        [DispId(2)] void OnDisconnection(int removeMode,ref Array custom);
-        [DispId(3)] void OnAddInsUpdate(ref Array custom);
-        [DispId(4)] void OnStartupComplete(ref Array custom);
-        [DispId(5)] void OnBeginShutdown(ref Array custom);
+        [DispId(1)] void OnConnection([In,MarshalAs(UnmanagedType.IDispatch)] object application,[In] ConnectMode connectMode,
+            [In,MarshalAs(UnmanagedType.IDispatch)] object addin,[In,MarshalAs(UnmanagedType.SafeArray,SafeArraySubType=VarEnum.VT_VARIANT)] ref Array custom);
+        [DispId(2)] void OnDisconnection([In] DisconnectMode removeMode,[In,MarshalAs(UnmanagedType.SafeArray,SafeArraySubType=VarEnum.VT_VARIANT)] ref Array custom);
+        [DispId(3)] void OnAddInsUpdate([In,MarshalAs(UnmanagedType.SafeArray,SafeArraySubType=VarEnum.VT_VARIANT)] ref Array custom);
+        [DispId(4)] void OnStartupComplete([In,MarshalAs(UnmanagedType.SafeArray,SafeArraySubType=VarEnum.VT_VARIANT)] ref Array custom);
+        [DispId(5)] void OnBeginShutdown([In,MarshalAs(UnmanagedType.SafeArray,SafeArraySubType=VarEnum.VT_VARIANT)] ref Array custom);
+    }
+    [ComVisible(true), Guid("A2C61CEC-C980-4D4B-BF02-430FE42C373E"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IRibbonCallbacks {
+        [DispId(101)] void OpenInvoice([In,MarshalAs(UnmanagedType.IDispatch)] object control);
+        [DispId(102)] [return:MarshalAs(UnmanagedType.VariantBool)] bool GetAnySender([In,MarshalAs(UnmanagedType.IDispatch)] object control);
+        [DispId(103)] void SetAnySender([In,MarshalAs(UnmanagedType.IDispatch)] object control,[In,MarshalAs(UnmanagedType.VariantBool)] bool pressed);
     }
     [ComVisible(true), Guid("000C0396-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IRibbonExtensibility {
         [DispId(1)] [return: MarshalAs(UnmanagedType.BStr)] string GetCustomUI([MarshalAs(UnmanagedType.BStr)] string ribbonId);
     }
     [ComVisible(true), Guid("8440B89B-1D14-4C0F-9EB8-6483F99A5932"),
-     ProgId("Ghedy.EInvoiceViewer.Outlook"), ClassInterface(ClassInterfaceType.AutoDispatch)]
-    public sealed class Addin : IDTExtensibility2, IRibbonExtensibility {
+     ProgId("Ghedy.EInvoiceViewer.Outlook"), ClassInterface(ClassInterfaceType.None), ComDefaultInterface(typeof(IRibbonCallbacks))]
+    public sealed class Addin : IDTExtensibility2, IRibbonExtensibility, IRibbonCallbacks {
         private object application;
         private bool busy;
         private const string SettingsKey=@"Software\Ghedy\e-InvoiceViewer\Outlook";
-        public void OnConnection(object app,int mode,object addin,ref Array custom) {application=app;}
-        public void OnDisconnection(int mode,ref Array custom) {application=null;}
-        public void OnAddInsUpdate(ref Array custom) {}
-        public void OnStartupComplete(ref Array custom) {}
-        public void OnBeginShutdown(ref Array custom) {application=null;}
+        public Addin() {Diagnostics.Write("construct");}
+        public void OnConnection(object app,ConnectMode mode,object addin,ref Array custom) {
+            Diagnostics.Write("OnConnection enter");
+            try {application=app;} catch(Exception error) {Diagnostics.Write("OnConnection failed",error);}
+            Diagnostics.Write("OnConnection exit");
+        }
+        public void OnDisconnection(DisconnectMode mode,ref Array custom) {Diagnostics.Write("OnDisconnection");application=null;}
+        public void OnAddInsUpdate(ref Array custom) {Diagnostics.Write("OnAddInsUpdate");}
+        public void OnStartupComplete(ref Array custom) {Diagnostics.Write("OnStartupComplete");}
+        public void OnBeginShutdown(ref Array custom) {Diagnostics.Write("OnBeginShutdown");application=null;}
         public string GetCustomUI(string ribbonId) {
+            Diagnostics.Write("GetCustomUI");
             string tab;
             if(ribbonId=="Microsoft.Outlook.Explorer") tab="TabMail";
             else if(ribbonId=="Microsoft.Outlook.Mail.Read") tab="TabReadMessage";
@@ -44,8 +60,10 @@ namespace EInvoiceViewer.OutlookClassic {
                 "<checkBox id=\"ghedyAnySender\" label=\"Consenti qualsiasi mittente\" getPressed=\"GetAnySender\" onAction=\"SetAnySender\"/></group></tab></tabs></ribbon></customUI>";
         }
         public bool GetAnySender(object control) {
-            using(RegistryKey key=Registry.CurrentUser.OpenSubKey(SettingsKey))
-                return key!=null && Convert.ToInt32(key.GetValue("AllowAnySender",0))==1;
+            try {
+                using(RegistryKey key=Registry.CurrentUser.OpenSubKey(SettingsKey))
+                    return key!=null && Convert.ToInt32(key.GetValue("AllowAnySender",0))==1;
+            } catch(Exception error) {Diagnostics.Write("GetAnySender failed",error);return false;}
         }
         public void SetAnySender(object control,bool pressed) {
             try {using(RegistryKey key=Registry.CurrentUser.CreateSubKey(SettingsKey)) key.SetValue("AllowAnySender",pressed?1:0,RegistryValueKind.DWord);}
@@ -55,7 +73,9 @@ namespace EInvoiceViewer.OutlookClassic {
             if(busy || application==null) return;
             busy=true;
             object context=null, item=null, selection=null;
-            string temp=Path.Combine(Path.GetTempPath(),"e-invoiceviewer-outlook",Guid.NewGuid().ToString("N"));
+            string temp=null;
+            bool launched=false;
+            Diagnostics.Write("OpenInvoice enter");
             try {
                 // Use the clicked ribbon's context, not a global last-message cache.
                 context=((dynamic)control).Context;
@@ -67,30 +87,36 @@ namespace EInvoiceViewer.OutlookClassic {
                 if(item==null || (int)((dynamic)item).Class!=43) {
                     MessageBox.Show("Seleziona un solo messaggio di posta.","e-Invoice Viewer"); return;
                 }
-                Directory.CreateDirectory(temp);
-                List<Invoice> invoices=new List<Invoice>();
+                temp=JobProtocol.CreateFolder();
+                InvoiceJob job=new InvoiceJob {AllowAnySender=GetAnySender(null)};
                 List<string> failures=new List<string>();
                 int budget=200;
-                Collect(item,temp,GetAnySender(null),0,ref budget,invoices,failures);
-                if(invoices.Count==0) {
+                long bytesRemaining=64L*1024*1024;
+                Collect(item,temp,job.AllowAnySender,0,ref budget,ref bytesRemaining,job.Attachments,failures);
+                if(job.Attachments.Count==0) {
                     string message="Nessuna fattura leggibile trovata. Il filtro consente solo mittenti dichiarati nel dominio pec.fatturapa.it; puoi ampliarlo dalla barra Fatture elettroniche.";
                     if(failures.Count>0) message+="\n\nUno o più allegati non sono stati letti: "+String.Join("; ",failures.ToArray());
                     MessageBox.Show(message,"e-Invoice Viewer"); return;
                 }
-                string xsl=Path.Combine(Path.GetDirectoryName(typeof(Addin).Assembly.Location),"shared","assets","assofattura.xsl");
-                ViewerForm viewer=new ViewerForm(invoices,xsl);
-                viewer.Show();
+                string directory=Path.GetDirectoryName(typeof(Addin).Assembly.Location);
+                string exe=Path.Combine(directory,"OutlookPreview.exe");
+                if(!File.Exists(exe)) throw new FileNotFoundException("Visualizzatore non disponibile.");
+                string manifest=JobProtocol.Write(temp,job);
+                Process process=Process.Start(new ProcessStartInfo(exe,"--job \""+manifest+"\"") {UseShellExecute=false,WorkingDirectory=directory});
+                if(process==null) throw new InvalidOperationException("Avvio non riuscito.");
+                process.Dispose();launched=true;
+                Diagnostics.Write("viewer launched");
                 if(failures.Count>0) MessageBox.Show("Alcuni allegati non sono stati letti: "+String.Join("; ",failures.ToArray()),"e-Invoice Viewer");
-            } catch {
+            } catch(Exception error) {
+                Diagnostics.Write("OpenInvoice failed",error);
                 MessageBox.Show("Impossibile leggere il messaggio. Verifica che sia selezionata una sola email e che gli allegati siano disponibili localmente.","e-Invoice Viewer");
             } finally {
                 Release(selection); Release(item); Release(context);
-                try {if(Directory.Exists(temp)) {foreach(string path in Directory.GetFiles(temp)) File.Delete(path); Directory.Delete(temp);}}
-                catch(IOException) {} catch(UnauthorizedAccessException) {}
-                busy=false;
+                if(!launched && temp!=null) JobProtocol.Clean(temp);
+                busy=false;Diagnostics.Write("OpenInvoice exit");
             }
         }
-        private void Collect(object item,string temp,bool any,int depth,ref int budget,List<Invoice> invoices,List<string> failures) {
+        private void Collect(object item,string temp,bool any,int depth,ref int budget,ref long bytesRemaining,List<InvoiceJobAttachment> attachmentsToOpen,List<string> failures) {
             if(depth>4 || budget<=0) return;
             string sender="";
             try {sender=(string)((dynamic)item).SenderEmailAddress;}
@@ -102,7 +128,7 @@ namespace EInvoiceViewer.OutlookClassic {
                     finally {Release(accessor);}
                 }
             } catch {}
-            bool trusted=InvoiceEngine.IsSdiSender(sender);
+            bool trusted=MailPolicy.IsSdiSender(sender);
             object attachments=((dynamic)item).Attachments;
             try {
                 int count=(int)((dynamic)attachments).Count;
@@ -113,29 +139,34 @@ namespace EInvoiceViewer.OutlookClassic {
                         attachment=((dynamic)attachments).Item(i);
                         string name=(string)((dynamic)attachment).FileName;
                         bool nested=String.Equals(name,"postacert.eml",StringComparison.OrdinalIgnoreCase);
-                        if(!nested && !(InvoiceEngine.IsInvoiceName(name) && (any||trusted))) continue;
-                        int max=nested ? InvoiceEngine.MaxMessage : InvoiceEngine.MaxFile;
+                        if(!nested && !(MailPolicy.IsInvoiceName(name) && (any||trusted))) continue;
+                        int max=nested ? MailPolicy.MaxMessage : MailPolicy.MaxFile;
                         if((int)((dynamic)attachment).Size>max) {failures.Add("file oltre il limite");continue;}
                         bool embedded=nested && (int)((dynamic)attachment).Type==5;
                         string path=Path.Combine(temp,Guid.NewGuid().ToString("N")+(embedded?".msg":".bin"));
                         ((dynamic)attachment).SaveAsFile(path);
-                        if(new FileInfo(path).Length>max) throw new InvalidDataException();
+                        long length=new FileInfo(path).Length;
+                        if(length>max || length>bytesRemaining) throw new InvalidDataException();
+                        bytesRemaining-=length;
                         if(embedded) {
                             object session=((dynamic)application).Session, inner=null;
                             try {
                                 inner=((dynamic)session).OpenSharedItem(path);
-                                if((int)((dynamic)inner).Class==43) Collect(inner,temp,any,depth+1,ref budget,invoices,failures);
+                                if((int)((dynamic)inner).Class==43) Collect(inner,temp,any,depth+1,ref budget,ref bytesRemaining,attachmentsToOpen,failures);
                             } finally {Release(inner);Release(session);}
                         } else {
-                            byte[] bytes=File.ReadAllBytes(path);
-                            if(nested) invoices.AddRange(InvoiceEngine.ReadEml(bytes,any));
-                            else invoices.Add(InvoiceEngine.ReadInvoice(bytes,name,trusted));
+                            attachmentsToOpen.Add(new InvoiceJobAttachment {
+                                File=Path.GetFileName(path),Name=name,Eml=nested,SenderMatches=trusted
+                            });
                         }
                     } catch {if(failures.Count<8) failures.Add("contenuto non supportato o malformato");}
                     finally {Release(attachment);}
                 }
             } finally {Release(attachments);}
         }
-        private static void Release(object value) {if(value!=null && Marshal.IsComObject(value)) Marshal.ReleaseComObject(value);}
+        private static void Release(object value) {
+            try {if(value!=null && Marshal.IsComObject(value)) Marshal.ReleaseComObject(value);}
+            catch(Exception error) {Diagnostics.Write("COM release failed",error);}
+        }
     }
 }

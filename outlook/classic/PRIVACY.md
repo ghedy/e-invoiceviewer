@@ -13,3 +13,7 @@ L’anteprima usa WebView2 con profilo InPrivate, script e comunicazione con il 
 La stampa utilizza la finestra del sistema di anteprima. Le copie stampate, i PDF salvati e i file scaricati restano sotto il controllo dell’utente.
 
 Non vengono verificati firma digitale, certificazione PEC, validità fiscale o assenza di malware.
+
+Dalla versione 0.1.3 il ponte Outlook passa gli allegati a un processo locale separato tramite file temporanei e un indice JSON nella stessa sottocartella casuale. L’indice contiene nomi degli allegati e risultato del filtro sul mittente, senza indirizzo del mittente. Il visualizzatore tenta di eliminare questi file appena terminata la lettura.
+
+Il registro LocalAppData/e-InvoiceViewer/Outlook/Diagnostics/addin.log contiene soltanto orario UTC, versione, identificativo del processo, nomi fissi delle fasi tecniche e tipo/codice delle eccezioni. Non registra corpo, oggetto, indirizzi, nomi degli allegati o contenuto delle fatture. La dimensione viene limitata mediante azzeramento oltre circa 256 KiB. Può essere consultato e copiato con **Mostra diagnostica** in OutlookSetup.exe; non viene inviato automaticamente.

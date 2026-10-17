@@ -9,10 +9,10 @@ project = Path(__file__).resolve().parents[1]
 root = project.parents[1]
 arch = sys.argv[1] if len(sys.argv) > 1 else "x64"
 assert arch in ("x86", "x64")
-package = root / "dist/outlook-classic-0.1.2" / arch
+package = root / "dist/outlook-classic-0.1.3" / arch
 work = root / ".test-artifacts" / ("preview-render-" + arch)
 work.mkdir(parents=True, exist_ok=True)
-names = ("EInvoiceViewer.Outlook.dll", "Microsoft.Web.WebView2.Core.dll",
+names = ("OutlookPreview.exe", "Microsoft.Web.WebView2.Core.dll",
          "Microsoft.Web.WebView2.WinForms.dll", "WebView2Loader.dll")
 for name in names:
     shutil.copyfile(package / name, work / name)
