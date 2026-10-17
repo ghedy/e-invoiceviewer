@@ -1,6 +1,10 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.5
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.6
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
+
+## Modifiche 0.1.6 — icona condivisa con Thunderbird
+
+Il pulsante **Visualizza fatture** usa la stessa icona della versione Thunderbird: foglio blu con righe e dettaglio arancione, senza scritte minute. La risorsa originale icons/invoice-64.png è incorporata nel componente Outlook durante la compilazione.
 
 ## Modifiche 0.1.5 — icona del pulsante
 
