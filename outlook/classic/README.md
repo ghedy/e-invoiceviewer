@@ -1,6 +1,10 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.0
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.1
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
+
+## Correzione 0.1.1
+
+L’inizializzazione grafica viene eseguita prima della finestra di scelta del file. È corretto l’errore SetCompatibleTextRenderingDefault segnalato durante la prima prova. La costruzione verifica l’avvio di una finestra nativa, senza mostrarla, sia a 32 sia a 64 bit.
 
 ## Cosa fa
 

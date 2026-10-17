@@ -7,6 +7,20 @@ namespace EInvoiceViewer.OutlookClassic {
     internal static class Preview {
         [STAThread] private static int Main(string[] args) {
             try {
+                bool renderOnly=args.Length==3 && args[1]=="--render";
+                // WinForms must be initialized before OpenFileDialog creates any HWND.
+                if(!renderOnly) {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                }
+                if(args.Length==1 && args[0]=="--startup-test") {
+                    // Exercise native window creation without displaying a window.
+                    using(Form probe=new Form()) {
+                        IntPtr handle=probe.Handle;
+                        if(handle==IntPtr.Zero) throw new InvalidOperationException("Creazione finestra non riuscita.");
+                    }
+                    return 0;
+                }
                 string input=null;
                 if(args.Length>0) input=args[0];
                 else using(OpenFileDialog picker=new OpenFileDialog {Filter="Fatture e messaggi|*.xml;*.p7m;*.eml",Title="Apri un documento di prova"}) {
@@ -23,12 +37,12 @@ namespace EInvoiceViewer.OutlookClassic {
                     File.WriteAllText(args[2],InvoiceEngine.Render(invoices[0],xsl));
                     return 0;
                 }
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new ViewerForm(invoices,xsl));
                 return 0;
             } catch(Exception error) {
-                if(args.Length==3 && args[1]=="--render") {Console.Error.WriteLine(error.Message);return 1;}
+                if((args.Length==3 && args[1]=="--render") || (args.Length==1 && args[0]=="--startup-test")) {
+                    Console.Error.WriteLine(error.Message); return 1;
+                }
                 MessageBox.Show(error.Message,"e-Invoice Viewer — prova locale");
                 return 1;
             }
