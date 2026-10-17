@@ -13,6 +13,7 @@ internal static class ComStartupTests {
     [StructLayout(LayoutKind.Sequential)] private struct DispatchParams {public IntPtr Args,NamedArgs;public uint Count,NamedCount;}
     [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int GetIds(IntPtr self,ref Guid iid,IntPtr names,uint count,uint locale,out int dispid);
     [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int Invoke(IntPtr self,int dispid,ref Guid iid,uint locale,ushort flags,ref DispatchParams args,IntPtr result,IntPtr exception,IntPtr argError);
+    [DllImport("oleaut32.dll")] private static extern int VariantClear(IntPtr variant);
     [DllImport("oleaut32.dll")] private static extern IntPtr SafeArrayCreateVector(ushort type,int lower,uint count);
     [DllImport("oleaut32.dll")] private static extern int SafeArrayDestroy(IntPtr array);
     private static T Slot<T>(IntPtr pointer,int index) where T:class {
@@ -62,6 +63,28 @@ internal static class ComStartupTests {
                     DispatchParams parameters=new DispatchParams {Args=argument,Count=1};
                     Check(Slot<Invoke>(dispatch,6)(dispatch,dispid,ref empty,0,1,ref parameters,result,IntPtr.Zero,IntPtr.Zero));
                     if(!(Marshal.GetObjectForNativeVariant(result) is bool)) throw new Exception("Invalid native ribbon callback result");
+                    Marshal.FreeCoTaskMem(name);name=Marshal.StringToCoTaskMemUni("LoadRibbonImage");
+                    Marshal.WriteIntPtr(names,name);
+                    Check(Slot<GetIds>(dispatch,5)(dispatch,ref empty,names,1,0,out dispid));
+                    if(dispid!=104) throw new Exception("Missing image callback dispatch ID");
+                    IntPtr imageId=Marshal.StringToBSTR("InvoiceSearch");
+                    try {
+                        Marshal.WriteInt16(argument,8); // VT_BSTR image name.
+                        Marshal.WriteIntPtr(argument,8,imageId);
+                        Check(VariantClear(result));
+                        Check(Slot<Invoke>(dispatch,6)(dispatch,dispid,ref empty,0,1,ref parameters,result,IntPtr.Zero,IntPtr.Zero));
+                        object picture=Marshal.GetObjectForNativeVariant(result);
+                        if(picture==null) throw new Exception("Image resource did not load");
+                        IntPtr pictureUnknown=Marshal.GetIUnknownForObject(picture),pictureInterface=IntPtr.Zero;
+                        try {
+                            Guid pictureId=new Guid("7BF80981-BF32-101A-8BBB-00AA00300CAB");
+                            Check(Marshal.QueryInterface(pictureUnknown,ref pictureId,out pictureInterface));
+                        } finally {
+                            if(pictureInterface!=IntPtr.Zero) Marshal.Release(pictureInterface);
+                            Marshal.Release(pictureUnknown);
+                        }
+                        Check(VariantClear(result));
+                    } finally {Marshal.FreeBSTR(imageId);}
                 } finally {
                     Marshal.Release(dispatch);Marshal.FreeCoTaskMem(name);Marshal.FreeCoTaskMem(names);
                     Marshal.FreeCoTaskMem(argument);Marshal.FreeCoTaskMem(result);

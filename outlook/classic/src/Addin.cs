@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -8,7 +9,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("e-Invoice Viewer for classic Outlook")]
-[assembly: AssemblyVersion("0.1.4.0")]
+[assembly: AssemblyVersion("0.1.5.0")]
 [assembly: ComVisible(false)]
 
 namespace EInvoiceViewer.OutlookClassic {
@@ -25,6 +26,7 @@ namespace EInvoiceViewer.OutlookClassic {
     }
     [ComVisible(true), Guid("A2C61CEC-C980-4D4B-BF02-430FE42C373E"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public interface IRibbonCallbacks {
+        [DispId(104)] [return:MarshalAs(UnmanagedType.IDispatch)] object LoadRibbonImage([In,MarshalAs(UnmanagedType.BStr)] string imageId);
         [DispId(101)] void OpenInvoice([In,MarshalAs(UnmanagedType.IDispatch)] object control);
         [DispId(102)] [return:MarshalAs(UnmanagedType.VariantBool)] bool GetAnySender([In,MarshalAs(UnmanagedType.IDispatch)] object control);
         [DispId(103)] void SetAnySender([In,MarshalAs(UnmanagedType.IDispatch)] object control,[In,MarshalAs(UnmanagedType.VariantBool)] bool pressed);
@@ -36,6 +38,11 @@ namespace EInvoiceViewer.OutlookClassic {
     [ComVisible(true), Guid("8440B89B-1D14-4C0F-9EB8-6483F99A5932"),
      ProgId("Ghedy.EInvoiceViewer.Outlook"), ClassInterface(ClassInterfaceType.None), ComDefaultInterface(typeof(IRibbonCallbacks))]
     public sealed class Addin : IDTExtensibility2, IRibbonExtensibility, IRibbonCallbacks {
+        private sealed class RibbonPicture : AxHost {
+            private RibbonPicture() : base(Guid.Empty.ToString()) {}
+            public static object FromImage(Image image) {return GetIPictureDispFromPicture(image);}
+        }
+        private object ribbonPicture;
         private object application;
         private bool busy;
         private const string SettingsKey=@"Software\Ghedy\e-InvoiceViewer\Outlook";
@@ -55,9 +62,21 @@ namespace EInvoiceViewer.OutlookClassic {
             if(ribbonId=="Microsoft.Outlook.Explorer") tab="TabMail";
             else if(ribbonId=="Microsoft.Outlook.Mail.Read") tab="TabReadMessage";
             else return null;
-            return "<customUI xmlns=\"http://schemas.microsoft.com/office/2009/07/customui\"><ribbon><tabs><tab idMso=\""+tab+
-                "\"><group id=\"ghedyInvoiceGroup\" label=\"Fatture elettroniche\"><button id=\"ghedyOpenInvoice\" label=\"Visualizza fatture\" size=\"large\" imageMso=\"FileOpen\" onAction=\"OpenInvoice\"/>"+
+            return "<customUI xmlns=\"http://schemas.microsoft.com/office/2009/07/customui\" loadImage=\"LoadRibbonImage\"><ribbon><tabs><tab idMso=\""+tab+
+                "\"><group id=\"ghedyInvoiceGroup\" label=\"Fatture elettroniche\"><button id=\"ghedyOpenInvoice\" label=\"Visualizza fatture\" size=\"large\" image=\"InvoiceSearch\" onAction=\"OpenInvoice\"/>"+
                 "<checkBox id=\"ghedyAnySender\" label=\"Consenti qualsiasi mittente\" getPressed=\"GetAnySender\" onAction=\"SetAnySender\"/></group></tab></tabs></ribbon></customUI>";
+        }
+        public object LoadRibbonImage(string imageId) {
+            if(imageId!="InvoiceSearch") return null;
+            try {
+                if(ribbonPicture==null) {
+                    using(Stream source=typeof(Addin).Assembly.GetManifestResourceStream("EInvoiceViewer.InvoiceSearch.png")) {
+                        if(source==null) throw new InvalidDataException("Icona non disponibile.");
+                        using(Bitmap image=new Bitmap(source)) ribbonPicture=RibbonPicture.FromImage(image);
+                    }
+                }
+                return ribbonPicture;
+            } catch(Exception error) {Diagnostics.Write("ribbon image failed",error);return null;}
         }
         public bool GetAnySender(object control) {
             try {

@@ -29,7 +29,7 @@ namespace EInvoiceViewer.OutlookClassic {
                 string path=LogPath;
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 if(File.Exists(path) && new FileInfo(path).Length>262144) File.WriteAllText(path,"");
-                string line=DateTime.UtcNow.ToString("o")+" 0.1.4 "+Process.GetCurrentProcess().Id+" "+stage;
+                string line=DateTime.UtcNow.ToString("o")+" 0.1.5 "+Process.GetCurrentProcess().Id+" "+stage;
                 if(error!=null) line+=" "+error.GetType().Name+" 0x"+error.HResult.ToString("X8");
                 File.AppendAllText(path,line+Environment.NewLine,Encoding.UTF8);
             } catch { /* Diagnostics must never interrupt Outlook. */ }

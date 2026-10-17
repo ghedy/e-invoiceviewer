@@ -25,7 +25,7 @@ assert compiler.exists(), ".NET Framework compiler not available"
 provenance = json.loads((root / "licenses/assosoftware-provenance.json").read_text(encoding="utf-8-sig"))
 assert hashlib.sha256((root / provenance["file"]).read_bytes()).hexdigest() == provenance["sha256"], "AssoSoftware XSL was modified"
 assert hashlib.sha256((root / provenance["license_file"]).read_bytes()).hexdigest() == provenance["license_sha256"], "AssoSoftware license was modified"
-output = root / "dist" / "outlook-classic-0.1.4"
+output = root / "dist" / "outlook-classic-0.1.5"
 sdk = cache / "sdk"
 sdk.mkdir(exist_ok=True)
 with zipfile.ZipFile(package) as archive:
@@ -40,6 +40,8 @@ with zipfile.ZipFile(package) as archive:
         command = [str(compiler), "/nologo", "/utf8output", "/optimize+", "/target:" + target,
                    "/platform:" + platform, "/out:" + str(destination)]
         command += ["/reference:" + ref for ref in (refs if viewer else refs[:-2])]
+        if "Addin.cs" in sources:
+            command.append("/resource:" + str(project / "artwork/invoice-search-64.png") + ",EInvoiceViewer.InvoiceSearch.png")
         command += [str(project / "src" / source) for source in sources]
         subprocess.run(command, check=True)
     for arch in ("x86", "x64"):
@@ -86,7 +88,7 @@ command = [str(compiler), "/nologo", "/utf8output", "/target:exe", "/out:" + str
            str(project / "tests/InvoiceEngineTests.cs")]
 subprocess.run(command, check=True)
 subprocess.run([str(test_exe), str(root)], check=True)
-archive_path = root / "dist/outlook-classic-0.1.4-prototype.zip"
+archive_path = root / "dist/outlook-classic-0.1.5-prototype.zip"
 # Include only the files produced for this prototype, never arbitrary folder contents.
 payload_names = [
     "EInvoiceViewer.Outlook.dll", "OutlookPreview.exe", "OutlookSetup.exe",
