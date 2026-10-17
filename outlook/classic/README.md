@@ -1,10 +1,12 @@
-# e-Invoice Viewer per Outlook classico — prototipo 0.1.1
+# e-Invoice Viewer per Outlook classico — prototipo 0.1.2
 
 Questo è un prototipo per **Outlook classico su Windows**, sviluppato separatamente dalla versione Thunderbird. Non è una versione per il nuovo Outlook, Outlook sul web o Mac.
 
-## Correzione 0.1.1
+## Correzioni 0.1.2
 
-L’inizializzazione grafica viene eseguita prima della finestra di scelta del file. È corretto l’errore SetCompatibleTextRenderingDefault segnalato durante la prima prova. La costruzione verifica l’avvio di una finestra nativa, senza mostrarla, sia a 32 sia a 64 bit.
+Corretto il filtro di navigazione che bloccava l’HTML interno e lasciava vuota l’anteprima. È autorizzato solo l’indirizzo completo del documento generato dall’applicazione; gli altri indirizzi restano bloccati. L’HTML viene emesso in UTF-8 coerente con il visualizzatore. I fallimenti di navigazione ora mostrano un messaggio con il codice tecnico, senza registrare il contenuto delle fatture.
+
+Resta inclusa la correzione 0.1.1: inizializzazione grafica prima della finestra di scelta file.
 
 ## Cosa fa
 
@@ -52,9 +54,9 @@ Per rimuovere l’integrazione, chiudi Outlook e usa **Rimuovi integrazione** ne
 
 ## Stato del collaudo
 
-Il nucleo di lettura, MIME, XML, P7M e trasformazione è verificato da test automatici. La compilazione genera pacchetti x86 e x64.
+Il nucleo di lettura, MIME, XML, P7M e trasformazione è verificato da 12 test automatici. La compilazione genera pacchetti x86 e x64. Dalla versione 0.1.2 è stata eseguita anche una prova di caricamento reale in WebView2 con fattura sintetica e cattura dell’anteprima; lo script scripts/test_preview.py permette di ripeterla senza collegarsi ad Outlook.
 
-L’aggancio COM, i pulsanti della barra e l’anteprima WebView2 devono ancora essere collaudati in Outlook reale: sul sistema di sviluppo non è stata rilevata un’installazione utilizzabile di Outlook. Non è garantito che il prototipo si carichi in tutte le configurazioni.
+L’aggancio COM e i pulsanti della barra devono ancora essere collaudati in Outlook reale: sul sistema di sviluppo non è stata rilevata un’installazione utilizzabile di Outlook. Non è garantito che il prototipo si carichi in tutte le configurazioni.
 
 Da verificare: PEC con postacert come file EML e come messaggio Outlook incorporato, firme S/MIME del messaggio, download degli allegati, caselle Exchange, finestre Explorer/Inspector, stampa multipagina e rimozione.
 

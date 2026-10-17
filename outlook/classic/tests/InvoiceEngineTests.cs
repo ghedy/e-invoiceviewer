@@ -107,7 +107,7 @@ internal static class InvoiceEngineTests {
                 value=value.Replace(pdf,Convert.ToBase64String(Bytes("<html>active</html>")));
                 Check(!InvoiceEngine.Embedded(InvoiceEngine.ReadInvoice(Bytes(value),"a.xml",false))[0].Pdf,"fake pdf");
             });
-            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.1/x64/EInvoiceViewer.Outlook.dll"));
+            Assembly addinAssembly=Assembly.LoadFrom(Path.Combine(root,"dist/outlook-classic-0.1.2/x64/EInvoiceViewer.Outlook.dll"));
             object addin=Activator.CreateInstance(addinAssembly.GetType("EInvoiceViewer.OutlookClassic.Addin",true));
             Test("COM entry supports the Office add-in and ribbon interfaces",delegate {
                 IntPtr unknown=Marshal.GetIUnknownForObject(addin);

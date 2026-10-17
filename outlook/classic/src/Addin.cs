@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("e-Invoice Viewer for classic Outlook")]
-[assembly: AssemblyVersion("0.1.1.0")]
+[assembly: AssemblyVersion("0.1.2.0")]
 [assembly: ComVisible(false)]
 
 namespace EInvoiceViewer.OutlookClassic {

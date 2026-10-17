@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -18,6 +19,8 @@ namespace EInvoiceViewer.OutlookClassic {
         private readonly string stylesheet;
         private readonly string session = Path.Combine(Path.GetTempPath(),"e-invoiceviewer-outlook",Guid.NewGuid().ToString("N"));
         private ulong navigationId;
+        private string expectedDocumentUri;
+        private string invoiceStatus;
         private bool validInvoice;
         private bool ready;
         public ViewerForm(IList<Invoice> data,string xsl) {
@@ -53,18 +56,23 @@ namespace EInvoiceViewer.OutlookClassic {
                     web.CoreWebView2.Settings.IsGeneralAutofillEnabled=false;
                     web.CoreWebView2.Settings.IsPasswordAutosaveEnabled=false;
                     web.CoreWebView2.NavigationStarting+=(s,e)=>{
-                        if(e.Uri!="about:blank") e.Cancel=true;
-                        else {navigationId=e.NavigationId;print.Enabled=false;}
+                        if(e.Uri!="about:blank" && !String.Equals(e.Uri,expectedDocumentUri,StringComparison.Ordinal)) {
+                            e.Cancel=true;
+                            status.Text="Anteprima bloccata: richiesta di navigazione non consentita.";
+                        } else {navigationId=e.NavigationId;print.Enabled=false;}
                     };
                     web.CoreWebView2.NavigationCompleted+=(s,e)=>{
-                        if(!IsDisposed && e.NavigationId==navigationId) print.Enabled=validInvoice && e.IsSuccess;
+                        if(IsDisposed || e.NavigationId!=navigationId) return;
+                        print.Enabled=validInvoice && e.IsSuccess;
+                        status.Text=e.IsSuccess ? invoiceStatus :
+                            "Impossibile caricare l’anteprima ("+e.WebErrorStatus+"). Gli allegati restano disponibili.";
                     };
                     web.CoreWebView2.NewWindowRequested+=(s,e)=>{e.Handled=true;};
                     web.CoreWebView2.DownloadStarting+=(s,e)=>{e.Cancel=true;};
                     web.CoreWebView2.PermissionRequested+=(s,e)=>{e.State=CoreWebView2PermissionState.Deny;};
                     ready=true; ShowInvoice();
-                } catch {
-                    status.Text="Anteprima non disponibile. Verifica che Microsoft Edge WebView2 Runtime sia installato.";
+                } catch(Exception error) {
+                    status.Text="Anteprima non disponibile ("+error.GetType().Name+"). Verifica Microsoft Edge WebView2 Runtime.";
                 }
             };
             FormClosed+=delegate {
@@ -77,6 +85,7 @@ namespace EInvoiceViewer.OutlookClassic {
         }
         private void ShowInvoice() {
             validInvoice=false;
+            expectedDocumentUri=null;
             print.Enabled=false; open.Enabled=false; files.DataSource=null;
             Invoice invoice=invoices.SelectedItem as Invoice;
             if(invoice==null) return;
@@ -87,12 +96,20 @@ namespace EInvoiceViewer.OutlookClassic {
                 try {files.DataSource=InvoiceEngine.Embedded(invoice);}
                 catch {status.Text+=" Alcuni allegati non sono leggibili o superano il limite.";}
                 validInvoice=true;
-                web.NavigateToString(html);
+                invoiceStatus=status.Text;
+                NavigateHtml(html);
             } catch(Exception error) {
                 validInvoice=false;
-                web.NavigateToString("<html><body>Impossibile visualizzare la fattura.</body></html>");
+                invoiceStatus=error.Message;
+                NavigateHtml("<html><body>Impossibile visualizzare la fattura.</body></html>");
                 status.Text=error.Message; files.DataSource=null; open.Enabled=false;
             }
+        }
+        private void NavigateHtml(string html) {
+            // Some WebView2 versions expose in-memory HTML as a data URL.
+            // Authorize exactly our current generated document, never arbitrary data URLs.
+            expectedDocumentUri="data:text/html;charset=utf-8;base64,"+Convert.ToBase64String(Encoding.UTF8.GetBytes(html));
+            web.CoreWebView2.Navigate(expectedDocumentUri);
         }
         private void SaveOrOpen() {
             EmbeddedFile attachment=files.SelectedItem as EmbeddedFile;

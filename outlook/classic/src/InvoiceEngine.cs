@@ -79,10 +79,14 @@ namespace EInvoiceViewer.OutlookClassic {
             using (XmlReader reader = XmlReader.Create(stylesheet, new XmlReaderSettings {
                 DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
                 transform.Load(reader, new XsltSettings(false,false), null);
-            StringBuilder output = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(output, transform.OutputSettings))
-                transform.Transform(invoice.Document, null, writer);
-            string html = output.ToString();
+            string html;
+            XmlWriterSettings outputSettings=transform.OutputSettings.Clone();
+            outputSettings.Encoding=new UTF8Encoding(false);
+            using(MemoryStream output=new MemoryStream()) {
+                using(XmlWriter writer=XmlWriter.Create(output,outputSettings))
+                    transform.Transform(invoice.Document,null,writer);
+                html=Encoding.UTF8.GetString(output.ToArray());
+            }
             int head = html.IndexOf("<head>",StringComparison.OrdinalIgnoreCase);
             if (head < 0) throw new InvalidDataException("Anteprima non prodotta.");
             string extra = "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'\">" +
