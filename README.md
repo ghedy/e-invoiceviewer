@@ -6,13 +6,15 @@
 
 Leggi XML e P7M con il foglio di stile AssoSoftware, consulta i PDF incorporati e stampa soltanto la fattura selezionata. L’elaborazione avviene sul tuo dispositivo, senza inviare le fatture a servizi esterni.
 
+**[Installa e-Invoice Viewer per Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/)**
+
 **[Scopri gli altri programmi dell’autore](https://quadra.acortina.it)** · [Edoardo Ghedina su GitHub](https://github.com/ghedy)
 
 ## Download
 
 | Programma di posta | Versione | Pacchetto e istruzioni |
 | --- | --- | --- |
-| Thunderbird 128 o successivo | 1.2.0 | [Scarica il componente XPI](https://github.com/ghedy/e-invoiceviewer/releases/tag/v1.2.0) |
+| Thunderbird 128 o successivo | Catalogo ufficiale | [Installa e-Invoice Viewer per Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/) |
 | Outlook classico per Windows | 0.1.7 — anteprima pubblica | [Scarica il pacchetto ZIP](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.7) · [Istruzioni Outlook](outlook/classic/README.md) |
 
 La versione Outlook richiede .NET Framework 4.8 o successivo e Microsoft Edge WebView2 Runtime. Scegli x64 oppure x86 in base all’architettura di **Outlook**. Non funziona con il nuovo Outlook, Outlook sul web o Outlook per Mac.
@@ -32,13 +34,14 @@ La versione Outlook è un prototipo: funzionamento confermato dall’autore sul 
 
 ## Installazione Thunderbird
 
-Il file installabile è disponibile nella sezione **[Releases](https://github.com/ghedy/e-invoiceviewer/releases)**.
+**[Installa e-Invoice Viewer per Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/)** dal catalogo ufficiale Thunderbird Add-ons.
 
-1. Scarica **e-invoiceviewer-1.2.0.xpi**, non l’archivio “Source code”.
-2. In Thunderbird apri **Componenti aggiuntivi e temi**.
-3. Dal menu con l’ingranaggio scegli **Installa componente aggiuntivo da file…**.
-4. Seleziona l’XPI e conferma l’installazione.
-5. Apri un messaggio contenente una fattura e premi **Visualizza fatture**.
+1. Apri la scheda ufficiale e segui le indicazioni per aggiungere il componente a Thunderbird.
+2. Se scarichi il file XPI dal browser, in Thunderbird apri **Componenti aggiuntivi e temi**, scegli **Installa componente aggiuntivo da file…** dal menu con l’ingranaggio e seleziona il file.
+3. Conferma l’installazione.
+4. Apri un messaggio contenente una fattura e premi **Visualizza fatture**.
+
+Le versioni XPI per l’installazione manuale restano disponibili anche nelle **[Releases](https://github.com/ghedy/e-invoiceviewer/releases)**.
 
 Per preparare nuove release: [istruzioni per GitHub Desktop](docs/GITHUB-DESKTOP.md).
 
@@ -76,7 +79,7 @@ Per segnalare problemi non allegare documenti reali o dati cliente. Per vulnerab
 
 ## English
 
-View Italian electronic invoices (XML and P7M) directly in Thunderbird or classic Outlook for Windows, open embedded PDFs and print the selected invoice. The Outlook version is a public preview; new Outlook, Outlook on the web and Mac are not supported. Documents are processed locally. Digital signatures and certified email authenticity are not verified. See the Italian instructions above to install the XPI package.
+View Italian electronic invoices (XML and P7M) directly in Thunderbird or classic Outlook for Windows, open embedded PDFs and print the selected invoice. The Outlook version is a public preview; new Outlook, Outlook on the web and Mac are not supported. Documents are processed locally. Digital signatures and certified email authenticity are not verified. [Install e-Invoice Viewer for Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/) from the official Thunderbird Add-ons catalog.
 
 ## Sviluppo
 
