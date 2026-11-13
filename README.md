@@ -1,4 +1,4 @@
-# e-Invoice Viewer per Thunderbird e Outlook classico
+# e-Invoice Viewer per Thunderbird, Outlook classico e Android
 
 ![Icona](icons/invoice-64.png)
 
@@ -14,8 +14,9 @@ Leggi XML e P7M con il foglio di stile AssoSoftware, consulta i PDF incorporati 
 
 | Programma di posta | Versione | Pacchetto e istruzioni |
 | --- | --- | --- |
-| Thunderbird 128 o successivo | Catalogo ufficiale | [Installa e-Invoice Viewer per Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/) |
+| Thunderbird 128 o successivo | 1.2.2 | [Installa e-Invoice Viewer per Thunderbird](https://addons.thunderbird.net/addon/e-invoice-viewer/) |
 | Outlook classico per Windows | 0.1.7 — anteprima pubblica | [Scarica il pacchetto ZIP](https://github.com/ghedy/e-invoiceviewer/releases/tag/outlook-v0.1.7) · [Istruzioni Outlook](outlook/classic/README.md) |
+| Android 8.0 o successivo | 1.0 | [Scarica APK](https://github.com/ghedy/e-invoiceviewer/releases/tag/android-v1.0) · [Istruzioni](https://quadra.acortina.it/e-invoiceviewer-android.html) |
 
 La versione Outlook richiede .NET Framework 4.8 o successivo e Microsoft Edge WebView2 Runtime. Scegli x64 oppure x86 in base all’architettura di **Outlook**. Non funziona con il nuovo Outlook, Outlook sul web o Outlook per Mac.
 
@@ -44,6 +45,10 @@ La versione Outlook è un prototipo: funzionamento confermato dall’autore sul 
 Le versioni XPI per l’installazione manuale restano disponibili anche nelle **[Releases](https://github.com/ghedy/e-invoiceviewer/releases)**.
 
 Per preparare nuove release: [istruzioni per GitHub Desktop](docs/GITHUB-DESKTOP.md).
+
+## Android
+
+Apri file XML, P7M ed EML da Android o dal selettore dell’app. Per le PEC in Thunderbird per Android, scarica il messaggio completo, apri l’allegato `postacert.eml` e scegli **e-Invoice Viewer**. Il comando **Stampa** apre la stampa di sistema, dove puoi anche salvare un PDF. L’app elabora i file sul dispositivo.
 
 ## Funzioni
 

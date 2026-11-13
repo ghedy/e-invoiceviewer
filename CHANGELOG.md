@@ -1,5 +1,16 @@
 # Novità
 
+## 1.2.2 — 11 novembre 2026
+
+- Corretta l’apertura delle fatture XML con istruzioni di elaborazione prima dell’elemento principale, come la dichiarazione del foglio di stile.
+
+## 1.2.1 — revisione Thunderbird
+
+- Interfaccia localizzata in italiano e inglese, con inglese predefinito.
+- Il listener dei messaggi risponde soltanto alle richieste del visualizzatore.
+- Rimosso il permesso `tabs`: apertura e gestione delle schede usano le operazioni di base.
+- Rimosso `licenses/` dal pacchetto Thunderbird; attribuzione e link ufficiale AssoSoftware sono nelle preferenze.
+
 ## 1.2.0 — 16 ottobre 2026
 
 - Apertura di fatture elettroniche italiane XML e P7M, anche da postacert.eml.

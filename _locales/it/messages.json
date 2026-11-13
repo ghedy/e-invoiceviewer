@@ -1,0 +1,182 @@
+{
+  "attachmentFailed": {
+    "message": "Impossibile aprire l’allegato: contenuto non valido, oltre 10 MiB o apertura non riuscita."
+  },
+  "attachmentMany": {
+    "message": "Allegati:"
+  },
+  "attachmentName": {
+    "message": "allegato-$1"
+  },
+  "attachmentOne": {
+    "message": "Allegato:"
+  },
+  "attachmentSaved": {
+    "message": "Allegato scaricato. Solo i PDF riconosciuti vengono aperti nell’anteprima."
+  },
+  "attachmentTooLarge": {
+    "message": "Allegato troppo grande."
+  },
+  "attachmentsLabel": {
+    "message": "Allegati"
+  },
+  "author": {
+    "message": "e-Invoice Viewer di Edoardo Ghedina"
+  },
+  "description": {
+    "message": "Visualizza fatture elettroniche italiane XML/P7M e allegati PDF, con elaborazione locale."
+  },
+  "emptyTransform": {
+    "message": "Il foglio di stile non ha prodotto una fattura leggibile."
+  },
+  "githubProfile": {
+    "message": "Profilo GitHub"
+  },
+  "initialSecurity": {
+    "message": "Firma digitale e certificazione PEC non verificate."
+  },
+  "invalidBase64": {
+    "message": "Allegato Base64 non valido o troppo grande."
+  },
+  "invalidBerLength": {
+    "message": "Lunghezza BER non valida."
+  },
+  "invalidBerTag": {
+    "message": "Tag BER non supportato."
+  },
+  "invalidP7m": {
+    "message": "Busta P7M non supportata o malformata."
+  },
+  "invalidSelection": {
+    "message": "Selezione fattura non valida."
+  },
+  "invalidStyle": {
+    "message": "Foglio di stile non valido."
+  },
+  "invoiceFilename": {
+    "message": "Fattura: $1"
+  },
+  "invoiceFrame": {
+    "message": "Fattura elettronica"
+  },
+  "invoiceLabel": {
+    "message": "Fattura"
+  },
+  "invoiceTooLarge": {
+    "message": "Fattura troppo grande (massimo 20 MiB)."
+  },
+  "loading": {
+    "message": "Caricamento fattura in corso..."
+  },
+  "locale": {
+    "message": "it"
+  },
+  "malformedXml": {
+    "message": "XML malformato."
+  },
+  "missingP7mEnd": {
+    "message": "Fine busta P7M mancante."
+  },
+  "missingP7mXml": {
+    "message": "Contenuto XML P7M assente o non supportato."
+  },
+  "noInvoices": {
+    "message": "Nessuna fattura trovata"
+  },
+  "notAvailable": {
+    "message": "Fattura non disponibile. Riaprila dal messaggio originale."
+  },
+  "notInvoice": {
+    "message": "Il contenuto non è una fattura elettronica XML."
+  },
+  "openInvoices": {
+    "message": "Visualizza fatture ($1)"
+  },
+  "otherPrograms": {
+    "message": "Scopri gli altri programmi dell’autore"
+  },
+  "p7mTooLarge": {
+    "message": "Contenuto P7M troppo grande."
+  },
+  "prefsAny": {
+    "message": "Consenti fatture da qualsiasi mittente"
+  },
+  "prefsDefault": {
+    "message": "Per impostazione predefinita vengono considerate solo le fatture con mittente dichiarato nel dominio pec.fatturapa.it, anche all’interno di postacert.eml."
+  },
+  "prefsHeading": {
+    "message": "Mittenti delle fatture"
+  },
+  "prefsReadFailed": {
+    "message": "Impossibile leggere le preferenze."
+  },
+  "prefsSafety": {
+    "message": "Il campo mittente può essere falsificato: questo filtro non autentica la PEC e non garantisce l’assenza di virus.\nDisattivandolo potrai visualizzare anche fatture inoltrate o ricevute da altri indirizzi.\nLa firma digitale non viene verificata. Gli stessi limiti sui contenuti restano sempre attivi."
+  },
+  "prefsSaveFailed": {
+    "message": "Impossibile salvare la preferenza."
+  },
+  "prefsSaved": {
+    "message": "Preferenza salvata."
+  },
+  "prefsTitle": {
+    "message": "Opzioni e-Invoice Viewer"
+  },
+  "print": {
+    "message": "Stampa fattura"
+  },
+  "printFailed": {
+    "message": "Impossibile avviare la stampa. Riapri la fattura e riprova."
+  },
+  "reopen": {
+    "message": "Riapri la fattura dal messaggio originale."
+  },
+  "scanFailed": {
+    "message": "Impossibile leggere gli allegati del messaggio"
+  },
+  "securityStatus": {
+    "message": "Firma digitale e certificazione PEC non verificate. Gli allegati non sono sottoposti a scansione antivirus."
+  },
+  "senderBlocked": {
+    "message": "Il filtro mittenti è attivo. Riapri un messaggio consentito."
+  },
+  "senderMatches": {
+    "message": "Mittente dichiarato nel dominio pec.fatturapa.it. "
+  },
+  "senderUnverified": {
+    "message": "Filtro mittenti disattivato: provenienza non verificata. "
+  },
+  "styleLoadFailed": {
+    "message": "Impossibile caricare il foglio di stile."
+  },
+  "stylesheetCredit": {
+    "message": "Il foglio di stile è di proprietà di AssoSoftware, che lo distribuisce gratuitamente secondo le proprie condizioni."
+  },
+  "stylesheetTerms": {
+    "message": "Condizioni d’uso AssoSoftware"
+  },
+  "tooComplex": {
+    "message": "Fattura troppo complessa da visualizzare."
+  },
+  "truncatedP7m": {
+    "message": "Busta P7M troncata."
+  },
+  "unsupportedCms": {
+    "message": "Busta CMS SignedData non supportata."
+  },
+  "unsupportedFormat": {
+    "message": "Formato FatturaPA non supportato."
+  },
+  "unsupportedP7m": {
+    "message": "Contenuto P7M non supportato."
+  },
+  "viewerFailed": {
+    "message": "Impossibile visualizzare la fattura"
+  },
+  "viewerTitle": {
+    "message": "Visualizzatore Fattura Elettronica"
+  },
+  "xmlRejected": {
+    "message": "XML non consentito o troppo grande."
+  }
+}

@@ -31,7 +31,7 @@ async function scanMessage(tab, message) {
     scans.set(tab.id, generation);
     displayedMessages.delete(tab.id);
     await browser.messageDisplayAction.disable(tab.id);
-    await browser.messageDisplayAction.setTitle({ tabId: tab.id, title: "Nessuna fattura trovata" });
+    await browser.messageDisplayAction.setTitle({ tabId: tab.id, title: browser.i18n.getMessage("noInvoices") });
     try {
         const settings = await browser.storage.local.get("allowAnySender");
         const invoices = await findInvoices(message, settings.allowAnySender === true);
@@ -39,13 +39,13 @@ async function scanMessage(tab, message) {
         if (invoices.length) {
             displayedMessages.set(tab.id, { id: message.id, invoices });
             await browser.messageDisplayAction.setTitle({ tabId: tab.id,
-                title: `Visualizza fatture (${invoices.length})` });
+                title: browser.i18n.getMessage("openInvoices", String(invoices.length)) });
             await browser.messageDisplayAction.enable(tab.id);
         }
     } catch {
         if (scans.get(tab.id) === generation) {
             await browser.messageDisplayAction.setTitle({ tabId: tab.id,
-                title: "Impossibile leggere gli allegati del messaggio" });
+                title: browser.i18n.getMessage("scanFailed") });
         }
     }
 }
@@ -64,28 +64,32 @@ browser.messageDisplayAction.onClicked.addListener(async tab => {
         await browser.tabs.update(viewer.id, { url: browser.runtime.getURL(`viewer.html?invoice=${token}`) });
     } catch { viewerMessages.delete(token); }
 });
-browser.runtime.onMessage.addListener(async (request, sender) => {
-    if (request?.type !== "getInvoice") return;
+browser.runtime.onMessage.addListener((request, sender) => {
+    if (request?.type !== "getInvoice") return undefined;
+    return getInvoice(request, sender);
+});
+
+async function getInvoice(request, sender) {
     const entry = viewerMessages.get(request.token);
     if (!entry || sender.id !== browser.runtime.id || sender.tab?.id !== entry.tabId ||
         !sender.url?.startsWith(browser.runtime.getURL("viewer.html?"))) {
-        throw new Error("Fattura non disponibile. Riaprila dal messaggio originale.");
+        throw new Error(browser.i18n.getMessage("notAvailable"));
     }
     const index = request.index ?? 0;
     if (!Number.isInteger(index) || index < 0 || index >= entry.invoices.length) {
-        throw new Error("Selezione fattura non valida.");
+        throw new Error(browser.i18n.getMessage("invalidSelection"));
     }
     const selected = entry.invoices[index];
     const settings = await browser.storage.local.get("allowAnySender");
     if (!selected.senderMatches && settings.allowAnySender !== true) {
-        throw new Error("Il filtro mittenti è attivo. Riapri un messaggio consentito.");
+        throw new Error(browser.i18n.getMessage("senderBlocked"));
     }
     const file = await browser.messages.getAttachmentFile(selected.messageId, selected.partName);
-    if (file.size > InvoiceCore.MAX_FILE_BYTES) throw new Error("Fattura troppo grande (massimo 20 MiB).");
+    if (file.size > InvoiceCore.MAX_FILE_BYTES) throw new Error(browser.i18n.getMessage("invoiceTooLarge"));
     const xml = InvoiceCore.extractInvoiceXml(new Uint8Array(await file.arrayBuffer()), selected.filename);
     return { xml, filename: selected.filename, senderMatches: selected.senderMatches,
         filenames: entry.invoices.map(invoice => invoice.filename) };
-});
+}
 browser.tabs.onRemoved.addListener(tabId => {
     scans.delete(tabId);
     displayedMessages.delete(tabId);

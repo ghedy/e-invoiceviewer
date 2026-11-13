@@ -2,6 +2,9 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const vm = require("node:vm");
 const fs = require("node:fs");
+const messages = require("../_locales/it/messages.json");
+const i18n = { getMessage: (key, substitution) => messages[key].message.replace("$1", () => substitution ?? "") };
+
 const core = require("../shared/core.js");
 const xml = '<p:FatturaElettronica xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"><FatturaElettronicaBody/></p:FatturaElettronica>';
 const bytes = value => new TextEncoder().encode(value);
@@ -25,6 +28,17 @@ test("XML preserves accented characters and supports UTF-16", () => {
     const value = xml.replace("<FatturaElettronicaBody/>", "<FatturaElettronicaBody>caffè</FatturaElettronicaBody>");
     assert.equal(core.extractInvoiceXml(bytes(value), "invoice.xml"), value);
     assert.equal(core.extractInvoiceXml(Buffer.from("\ufeff" + value, "utf16le"), "invoice.xml"), value);
+});
+test("XML accepts processing instructions before the invoice root", () => {
+    const value = '<?xml version="1.0" encoding="utf-8"?>\n' +
+        '<?xml-stylesheet type="text/xsl" href="fatturaPA_v1.2.1.xsl"?>\n' +
+        "<!-- comment -->\n<?test?>\n" + xml;
+    assert.equal(core.extractInvoiceXml(bytes(value), "invoice.xml"), value);
+    assert.equal(core.extractInvoiceXml(cms(bytes(value), false), "invoice.xml.p7m"), value);
+    for (const body of ["<FileMetadati/>", "<wrapper><FatturaElettronica/></wrapper>"]) {
+        assert.throws(() => core.extractInvoiceXml(bytes("<?test?>\n" + body), "invoice.xml"));
+    }
+    assert.throws(() => core.extractInvoiceXml(bytes("<?test <FatturaElettronica/>"), "invoice.xml"));
 });
 test("CMS primitive and constructed BER content are extracted without a signature verdict", () => {
     for (const indefinite of [false, true]) assert.equal(core.extractInvoiceXml(cms(bytes(xml), indefinite), "invoice.xml.p7m"), xml);
@@ -71,6 +85,7 @@ function backgroundHarness() {
     let settings = {};
     const event = name => ({ addListener: callback => { listeners[name] = callback; } });
     const browser = {
+        i18n,
         storage: { local: { remove: async () => {}, get: async () => settings }, onChanged: event("settings") },
         messages: {
             listAttachments: async id => attachments.get(id) || [],
@@ -136,3 +151,9 @@ test("a slow scan cannot replace a newer message", async () => {
     assert.equal((await h.request(h.tabs[0])).filename, "IT_invoice_20.xml");
 });
 
+
+test("the invoice listener does not claim unrelated runtime messages", () => {
+    const { listeners } = backgroundHarness();
+    assert.equal(listeners.request({ type: "anotherFeature" }, {}), undefined);
+    assert.equal(listeners.request(undefined, {}), undefined);
+});

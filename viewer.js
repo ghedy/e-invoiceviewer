@@ -15,7 +15,7 @@ function printInvoice() {
         printableFrame.contentWindow.print();
     } catch {
         document.getElementById("print-status").textContent =
-            "Impossibile avviare la stampa. Riapri la fattura e riprova.";
+            browser.i18n.getMessage("printFailed");
     }
 }
 printButton.addEventListener("click", printInvoice);
@@ -29,9 +29,9 @@ function renderAttachments(xmlDoc) {
     list.replaceChildren();
     const attachments = Array.from(xmlDoc.getElementsByTagName("*")).filter(node => node.localName === "Allegati");
     document.getElementById("attachments-bar").style.display = attachments.length ? "block" : "none";
-    document.getElementById("attachments-title").textContent = attachments.length === 1 ? "Allegato:" : "Allegati:";
+    document.getElementById("attachments-title").textContent = attachments.length === 1 ? browser.i18n.getMessage("attachmentOne") : browser.i18n.getMessage("attachmentMany");
     for (const [index, node] of attachments.entries()) {
-        const name = (childText(node, "NomeAttachment") || `allegato-${index + 1}`)
+        const name = (childText(node, "NomeAttachment") || browser.i18n.getMessage("attachmentName", String(index + 1)))
             .replace(/[\\/:*?"<>|\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/g, "_").slice(0, 180);
         const format = childText(node, "FormatoAttachment").toLowerCase();
         const compression = childText(node, "AlgoritmoCompressione");
@@ -55,18 +55,18 @@ function renderAttachments(xmlDoc) {
                     link.download = name;
                     link.click();
                     document.getElementById("attachment-status").textContent =
-                        "Allegato scaricato. Solo i PDF riconosciuti vengono aperti nell’anteprima.";
+                        browser.i18n.getMessage("attachmentSaved");
                 }
             } catch {
                 document.getElementById("attachment-status").textContent =
-                    "Impossibile aprire l’allegato: contenuto non valido, oltre 10 MiB o apertura non riuscita.";
+                    browser.i18n.getMessage("attachmentFailed");
             } finally { button.disabled = false; }
         });
         list.appendChild(button);
     }
 }
 const stylesheet = fetch(browser.runtime.getURL("shared/assets/assofattura.xsl")).then(response => {
-    if (!response.ok) throw new Error("Impossibile caricare il foglio di stile.");
+    if (!response.ok) throw new Error(browser.i18n.getMessage("styleLoadFailed"));
     return response.text();
 });
 // Avoid an unhandled rejection if the viewer was opened without a valid token.
@@ -87,7 +87,7 @@ async function showInvoice(index = 0) {
         const xml = InvoiceCore.checkXmlText(data.xml);
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xml, "application/xml");
-        if (xmlDoc.querySelector("parsererror")) throw new Error("XML malformato.");
+        if (xmlDoc.querySelector("parsererror")) throw new Error(browser.i18n.getMessage("malformedXml"));
         const root = xmlDoc.documentElement;
         const namespaces = new Set([
             "http://www.fatturapa.gov.it/sdi/fatturapa/v1.0",
@@ -96,22 +96,22 @@ async function showInvoice(index = 0) {
             "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.0"
         ]);
         if (!["FatturaElettronica", "FatturaElettronicaSemplificata"].includes(root.localName) ||
-            !namespaces.has(root.namespaceURI)) throw new Error("Formato FatturaPA non supportato.");
+            !namespaces.has(root.namespaceURI)) throw new Error(browser.i18n.getMessage("unsupportedFormat"));
         const stack = [[root, 0]];
         let count = 0;
         while (stack.length) {
             const [node, depth] = stack.pop();
-            if (++count > 50000 || depth > 64) throw new Error("Fattura troppo complessa da visualizzare.");
+            if (++count > 50000 || depth > 64) throw new Error(browser.i18n.getMessage("tooComplex"));
             for (const child of node.children) stack.push([child, depth + 1]);
         }
         const xslDoc = parser.parseFromString(await stylesheet, "application/xml");
         if (generation !== selectionGeneration) return;
-        if (xslDoc.querySelector("parsererror")) throw new Error("Foglio di stile non valido.");
+        if (xslDoc.querySelector("parsererror")) throw new Error(browser.i18n.getMessage("invalidStyle"));
         const processor = new XSLTProcessor();
         processor.importStylesheet(xslDoc);
         const result = processor.transformToDocument(xmlDoc);
         if (!result?.documentElement || !result.querySelector("#fattura-container")?.textContent.trim()) {
-            throw new Error("Il foglio di stile non ha prodotto una fattura leggibile.");
+            throw new Error(browser.i18n.getMessage("emptyTransform"));
         }
         const policy = result.createElement("meta");
         policy.setAttribute("http-equiv", "Content-Security-Policy");
@@ -140,7 +140,7 @@ async function showInvoice(index = 0) {
         }
         documentTitle.textContent = data.filename;
         const frame = document.createElement("iframe");
-        frame.title = "Fattura elettronica";
+        frame.title = browser.i18n.getMessage("invoiceFrame");
         // Same-origin access and modal permission allow the parent to call print().
         // Scripts, forms, popups and top navigation remain blocked by the sandbox;
         // the document CSP independently disallows scripts and remote resources.
@@ -152,10 +152,10 @@ async function showInvoice(index = 0) {
         }, { once: true });
         frame.srcdoc = "<!DOCTYPE html>" + result.documentElement.outerHTML;
         container.replaceChildren(frame);
-        document.getElementById("title").textContent = "Fattura: " + data.filename;
+        document.getElementById("title").textContent = browser.i18n.getMessage("invoiceFilename", data.filename);
         document.getElementById("security-status").textContent =
-            (data.senderMatches ? "Mittente dichiarato nel dominio pec.fatturapa.it. " : "Filtro mittenti disattivato: provenienza non verificata. ") +
-            "Firma digitale e certificazione PEC non verificate. Gli allegati non sono sottoposti a scansione antivirus.";
+            (data.senderMatches ? browser.i18n.getMessage("senderMatches") : browser.i18n.getMessage("senderUnverified")) +
+            browser.i18n.getMessage("securityStatus");
         const selector = document.getElementById("invoice-select");
         selector.replaceChildren(...data.filenames.map((filename, i) => {
             const option = document.createElement("option");
@@ -168,8 +168,8 @@ async function showInvoice(index = 0) {
         renderAttachments(xmlDoc);
     } catch (error) {
         if (generation !== selectionGeneration) return;
-        document.getElementById("title").textContent = "Impossibile visualizzare la fattura";
-        container.textContent = error.message || "Riapri la fattura dal messaggio originale.";
+        document.getElementById("title").textContent = browser.i18n.getMessage("viewerFailed");
+        container.textContent = error.message || browser.i18n.getMessage("reopen");
     }
 }
 document.getElementById("invoice-select").addEventListener("change", event => showInvoice(Number(event.target.value)));

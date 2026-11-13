@@ -1,0 +1,182 @@
+{
+  "attachmentFailed": {
+    "message": "Unable to open the attachment: invalid content, more than 10 MiB, or opening failed."
+  },
+  "attachmentMany": {
+    "message": "Attachments:"
+  },
+  "attachmentName": {
+    "message": "attachment-$1"
+  },
+  "attachmentOne": {
+    "message": "Attachment:"
+  },
+  "attachmentSaved": {
+    "message": "Attachment downloaded. Only recognized PDFs open in a preview."
+  },
+  "attachmentTooLarge": {
+    "message": "Attachment is too large."
+  },
+  "attachmentsLabel": {
+    "message": "Attachments"
+  },
+  "author": {
+    "message": "e-Invoice Viewer by Edoardo Ghedina"
+  },
+  "description": {
+    "message": "View Italian XML/P7M electronic invoices and PDF attachments, with local processing."
+  },
+  "emptyTransform": {
+    "message": "The stylesheet did not produce a readable invoice."
+  },
+  "githubProfile": {
+    "message": "GitHub profile"
+  },
+  "initialSecurity": {
+    "message": "Digital signatures and certified email are not verified."
+  },
+  "invalidBase64": {
+    "message": "Invalid or oversized Base64 attachment."
+  },
+  "invalidBerLength": {
+    "message": "Invalid BER length."
+  },
+  "invalidBerTag": {
+    "message": "Unsupported BER tag."
+  },
+  "invalidP7m": {
+    "message": "Unsupported or malformed P7M envelope."
+  },
+  "invalidSelection": {
+    "message": "Invalid invoice selection."
+  },
+  "invalidStyle": {
+    "message": "Invalid stylesheet."
+  },
+  "invoiceFilename": {
+    "message": "Invoice: $1"
+  },
+  "invoiceFrame": {
+    "message": "Electronic invoice"
+  },
+  "invoiceLabel": {
+    "message": "Invoice"
+  },
+  "invoiceTooLarge": {
+    "message": "Invoice is too large (maximum 20 MiB)."
+  },
+  "loading": {
+    "message": "Loading invoice…"
+  },
+  "locale": {
+    "message": "en"
+  },
+  "malformedXml": {
+    "message": "Malformed XML."
+  },
+  "missingP7mEnd": {
+    "message": "Missing P7M end marker."
+  },
+  "missingP7mXml": {
+    "message": "Missing or unsupported XML content in the P7M envelope."
+  },
+  "noInvoices": {
+    "message": "No invoices found"
+  },
+  "notAvailable": {
+    "message": "Invoice unavailable. Reopen it from the original message."
+  },
+  "notInvoice": {
+    "message": "The content is not an XML electronic invoice."
+  },
+  "openInvoices": {
+    "message": "View invoices ($1)"
+  },
+  "otherPrograms": {
+    "message": "Explore the author’s other programs"
+  },
+  "p7mTooLarge": {
+    "message": "P7M content is too large."
+  },
+  "prefsAny": {
+    "message": "Allow invoices from any sender"
+  },
+  "prefsDefault": {
+    "message": "By default, only invoices with a declared sender in the pec.fatturapa.it domain are considered, including inside postacert.eml."
+  },
+  "prefsHeading": {
+    "message": "Invoice senders"
+  },
+  "prefsReadFailed": {
+    "message": "Unable to read preferences."
+  },
+  "prefsSafety": {
+    "message": "The sender field can be forged. This filter does not authenticate certified email or detect malware. Turning it off lets you view forwarded invoices and invoices from other senders. Digital signatures are not verified. The same content limits always apply."
+  },
+  "prefsSaveFailed": {
+    "message": "Unable to save the preference."
+  },
+  "prefsSaved": {
+    "message": "Preference saved."
+  },
+  "prefsTitle": {
+    "message": "e-Invoice Viewer settings"
+  },
+  "print": {
+    "message": "Print invoice"
+  },
+  "printFailed": {
+    "message": "Unable to print. Reopen the invoice and try again."
+  },
+  "reopen": {
+    "message": "Reopen the invoice from the original message."
+  },
+  "scanFailed": {
+    "message": "Unable to read message attachments"
+  },
+  "securityStatus": {
+    "message": "Digital signatures and certified email are not verified. Attachments are not scanned for malware."
+  },
+  "senderBlocked": {
+    "message": "The sender filter is on. Open an allowed message."
+  },
+  "senderMatches": {
+    "message": "Declared sender in the pec.fatturapa.it domain. "
+  },
+  "senderUnverified": {
+    "message": "Sender filter off: origin not verified. "
+  },
+  "styleLoadFailed": {
+    "message": "Unable to load the stylesheet."
+  },
+  "stylesheetCredit": {
+    "message": "The stylesheet is owned by AssoSoftware and is distributed free of charge under its terms."
+  },
+  "stylesheetTerms": {
+    "message": "AssoSoftware terms of use"
+  },
+  "tooComplex": {
+    "message": "Invoice is too complex to display."
+  },
+  "truncatedP7m": {
+    "message": "Truncated P7M envelope."
+  },
+  "unsupportedCms": {
+    "message": "Unsupported CMS SignedData envelope."
+  },
+  "unsupportedFormat": {
+    "message": "Unsupported FatturaPA format."
+  },
+  "unsupportedP7m": {
+    "message": "Unsupported P7M content."
+  },
+  "viewerFailed": {
+    "message": "Unable to display the invoice"
+  },
+  "viewerTitle": {
+    "message": "Electronic Invoice Viewer"
+  },
+  "xmlRejected": {
+    "message": "XML is not allowed or is too large."
+  }
+}

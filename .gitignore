@@ -9,3 +9,5 @@ dist/
 
 !tests/fixtures/synthetic-invoice.eml
 .test-artifacts/
+
+/android/signing/

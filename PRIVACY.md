@@ -18,7 +18,6 @@ I collegamenti al sito dell’autore e a GitHub si aprono soltanto su richiesta.
 
 - **messagesRead:** individuare e leggere gli allegati delle fatture.
 - **storage:** ricordare la preferenza sui mittenti.
-- **tabs:** gestire le schede del visualizzatore e degli allegati.
 
 Il filtro mittenti non autentica la PEC. L’estensione non verifica firme digitali e non esegue scansioni antivirus.
 

@@ -2,6 +2,9 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const vm = require("node:vm");
 const fs = require("node:fs");
+const messages = require("../_locales/it/messages.json");
+const i18n = { getMessage: (key, substitution) => messages[key].message.replace("$1", () => substitution ?? "") };
+
 
 function viewerHarness() {
     const elements = new Map();
@@ -64,6 +67,7 @@ function viewerHarness() {
         InvoiceCore: { checkXmlText: xml => xml },
         fetch: async () => ({ ok: true, text: async () => "<xsl/>" }),
         browser: {
+            i18n,
             runtime: {
                 getURL: value => value,
                 sendMessage: async request => {

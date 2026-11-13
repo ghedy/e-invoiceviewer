@@ -8,10 +8,10 @@ root = Path(__file__).resolve().parents[1]
 manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8-sig"))
 files = [
     "manifest.json", "background.js", "viewer.html", "viewer.js",
-    "options.html", "options.js", "shared/core.js",
+    "options.html", "options.js", "shared/core.js", "shared/localize.js",
+    "_locales/en/messages.json", "_locales/it/messages.json",
     "shared/assets/assofattura.xsl", "LICENSE", "THIRD_PARTY_NOTICES.md",
-    "PRIVACY.md", "licenses/AssoInvoice-LICENSE.pdf",
-    "licenses/assosoftware-provenance.json",
+    "PRIVACY.md",
     *[f"icons/invoice-{size}.png" for size in (16, 32, 48, 64, 128)],
 ]
 # Refuse accidental changes to the third-party files covered by separate terms.
@@ -39,5 +39,5 @@ digest = hashlib.sha256(target.read_bytes()).hexdigest()
 (target.with_suffix(".xpi.sha256")).write_text(digest + "  " + target.name + "\n", encoding="ascii")
 print("Pacchetto:", target)
 print("SHA256:", digest)
-print("Include attribuzione, condizioni AssoSoftware e informativa sulla riservatezza.")
+print("Include attribuzione, link alle condizioni AssoSoftware e informativa sulla riservatezza.")
 

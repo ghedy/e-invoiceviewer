@@ -1,16 +1,17 @@
 <!doctype html>
-<html lang="it">
-<head><meta charset="utf-8"><title>Opzioni e-Invoice Viewer</title></head>
+<html lang="en">
+<head><meta charset="utf-8"><title data-i18n="prefsTitle">e-Invoice Viewer settings</title></head>
 <body>
-<h1>Mittenti delle fatture</h1>
-<p>Per impostazione predefinita vengono considerate solo le fatture con mittente dichiarato nel dominio pec.fatturapa.it, anche all’interno di postacert.eml.</p>
-<label><input id="allow-any" type="checkbox"> Consenti fatture da qualsiasi mittente</label>
-<p>Il campo mittente può essere falsificato: questo filtro non autentica la PEC e non garantisce l’assenza di virus.
-Disattivandolo potrai visualizzare anche fatture inoltrate o ricevute da altri indirizzi.
-La firma digitale non viene verificata. Gli stessi limiti sui contenuti restano sempre attivi.</p>
+<h1 data-i18n="prefsHeading">Invoice senders</h1>
+<p data-i18n="prefsDefault">By default, only invoices with a declared sender in the pec.fatturapa.it domain are considered, including inside postacert.eml.</p>
+<label><input id="allow-any" type="checkbox"> <span data-i18n="prefsAny">Allow invoices from any sender</span></label>
+<p data-i18n="prefsSafety">The sender field can be forged. This filter does not authenticate certified email or detect malware. Turning it off lets you view forwarded invoices and invoices from other senders. Digital signatures are not verified. The same content limits always apply.</p>
 <p id="status" role="status"></p>
 <hr>
-<p>e-Invoice Viewer di Edoardo Ghedina · <a href="https://quadra.acortina.it" target="_blank" rel="noopener noreferrer">Scopri gli altri programmi dell’autore</a> · <a href="https://github.com/ghedy" target="_blank" rel="noopener noreferrer">Profilo GitHub</a></p>
+<p data-i18n="stylesheetCredit">The stylesheet is owned by AssoSoftware and is distributed free of charge under its terms.</p>
+<p><a href="https://www.assosoftware.it/wp-content/uploads/2022/09/licenza_AssoInvoice_1.0.0.pdf" target="_blank" rel="noopener noreferrer" data-i18n="stylesheetTerms">AssoSoftware terms of use</a></p>
+<p><span data-i18n="author">e-Invoice Viewer by Edoardo Ghedina</span> · <a href="https://quadra.acortina.it" target="_blank" rel="noopener noreferrer" data-i18n="otherPrograms">Explore the author’s other programs</a> · <a href="https://github.com/ghedy" target="_blank" rel="noopener noreferrer" data-i18n="githubProfile">GitHub profile</a></p>
+<script src="shared/localize.js"></script>
 <script src="options.js"></script>
 </body></html>
 

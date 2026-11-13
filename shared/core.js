@@ -1,6 +1,9 @@
 "use strict";
-// No DOM or mail APIs: reusable by future clients.
+// No DOM or mail APIs. Use localized errors when running in the extension.
 const InvoiceCore = (() => {
+    function localizedError(key, fallback) {
+        return new Error(typeof browser === "undefined" ? fallback : browser.i18n.getMessage(key) || fallback);
+    }
     const MAX_FILE_BYTES = 20 * 1024 * 1024;
     const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
     function isSdiSender(author) {
@@ -25,10 +28,25 @@ const InvoiceCore = (() => {
     }
     function checkXmlText(xml) {
         if (typeof xml !== "string" || xml.length > MAX_FILE_BYTES || /<!DOCTYPE|<!ENTITY/i.test(xml)) {
-            throw new Error("XML non consentito o troppo grande.");
+            throw localizedError("xmlRejected", "XML is not allowed or is too large.");
         }
-        if (!/^(?:<\?xml[^?]*\?>\s*)?(?:<!--[\s\S]*?-->\s*)*<(?:[\w.-]+:)?FatturaElettronica(?:Semplificata)?(?:\s|>)/.test(xml)) {
-            throw new Error("Il contenuto non è una fattura elettronica XML.");
+        // A processing instruction such as xml-stylesheet may appear before the root.
+        // Read each prolog item up to its own terminator. The viewer parses the full XML.
+        const declaration = /^<\?xml\s[^?]*\?>/.exec(xml);
+        let offset = declaration ? declaration[0].length : 0;
+        const prologItem = /\s*(<!--|<\?(?!xml(?=\s|\?>))[^?\s<>]+(?=\s|\?>))/iy;
+        prologItem.lastIndex = offset;
+        for (let item = prologItem.exec(xml); item; item = prologItem.exec(xml)) {
+            const terminator = item[1] === "<!--" ? "-->" : "?>";
+            const end = xml.indexOf(terminator, prologItem.lastIndex);
+            if (end === -1) break;
+            offset = end + terminator.length;
+            prologItem.lastIndex = offset;
+        }
+        const invoiceRoot = /\s*<(?:[\w.-]+:)?FatturaElettronica(?:Semplificata)?(?:\s|>)/y;
+        invoiceRoot.lastIndex = offset;
+        if (!invoiceRoot.test(xml)) {
+            throw localizedError("notInvoice", "The content is not an XML electronic invoice.");
         }
         return xml;
     }
@@ -36,21 +54,21 @@ const InvoiceCore = (() => {
     function cmsPayload(bytes) {
         let nodes = 0;
         function read(offset, limit, depth = 0) {
-            if (++nodes > 20000 || depth > 32 || offset + 2 > limit) throw new Error("Busta P7M non supportata o malformata.");
+            if (++nodes > 20000 || depth > 32 || offset + 2 > limit) throw localizedError("invalidP7m", "Unsupported or malformed P7M envelope.");
             const tag = bytes[offset++];
-            if ((tag & 31) === 31 || tag === 0) throw new Error("Tag BER non supportato.");
+            if ((tag & 31) === 31 || tag === 0) throw localizedError("invalidBerTag", "Unsupported BER tag.");
             let length = bytes[offset++];
             const indefinite = length === 0x80;
-            if (indefinite && !(tag & 32)) throw new Error("Lunghezza BER non valida.");
+            if (indefinite && !(tag & 32)) throw localizedError("invalidBerLength", "Invalid BER length.");
             if (!indefinite && (length & 128)) {
                 const count = length & 127;
-                if (!count || count > 4 || offset + count > limit) throw new Error("Lunghezza BER non valida.");
+                if (!count || count > 4 || offset + count > limit) throw localizedError("invalidBerLength", "Invalid BER length.");
                 length = 0;
                 for (let i = 0; i < count; i++) length = length * 256 + bytes[offset++];
             }
             const start = offset;
             const end = indefinite ? limit : start + length;
-            if (end > limit) throw new Error("Busta P7M troncata.");
+            if (end > limit) throw localizedError("truncatedP7m", "Truncated P7M envelope.");
             const children = [];
             if (tag & 32) {
                 while (offset < end) {
@@ -61,7 +79,7 @@ const InvoiceCore = (() => {
                     children.push(child);
                     offset = child.next;
                 }
-                if (indefinite) throw new Error("Fine busta P7M mancante.");
+                if (indefinite) throw localizedError("missingP7mEnd", "Missing P7M end marker.");
             }
             return { tag, start, end, next: end, children };
         }
@@ -73,22 +91,22 @@ const InvoiceCore = (() => {
             oid(root.children[0]) !== "42,134,72,134,247,13,1,7,2" || wrapper?.tag !== 160 ||
             wrapper.children.length !== 1 || signed?.tag !== 48 ||
             signed.children[0]?.tag !== 2 || signed.children[1]?.tag !== 49 ||
-            signed.children.at(-1)?.tag !== 49) throw new Error("Busta CMS SignedData non supportata.");
+            signed.children.at(-1)?.tag !== 49) throw localizedError("unsupportedCms", "Unsupported CMS SignedData envelope.");
         const encap = signed.children[2];
         const content = encap?.children[1];
         if (encap?.tag !== 48 || oid(encap.children[0]) !== "42,134,72,134,247,13,1,7,1" ||
             encap.children.length !== 2 || content?.tag !== 160 || content.children.length !== 1) {
-            throw new Error("Contenuto XML P7M assente o non supportato.");
+            throw localizedError("missingP7mXml", "Missing or unsupported XML content in the P7M envelope.");
         }
         const chunks = [];
         let total = 0;
         function collect(node) {
             if (node.tag === 4) {
                 total += node.end - node.start;
-                if (total > MAX_FILE_BYTES) throw new Error("Contenuto P7M troppo grande.");
+                if (total > MAX_FILE_BYTES) throw localizedError("p7mTooLarge", "P7M content is too large.");
                 chunks.push(bytes.subarray(node.start, node.end));
             } else if (node.tag === 36) node.children.forEach(collect);
-            else throw new Error("Contenuto P7M non supportato.");
+            else throw localizedError("unsupportedP7m", "Unsupported P7M content.");
         }
         collect(content.children[0]);
         const payload = new Uint8Array(total);
@@ -97,18 +115,18 @@ const InvoiceCore = (() => {
         return payload;
     }
     function extractInvoiceXml(bytes, filename) {
-        if (bytes.length > MAX_FILE_BYTES) throw new Error("Fattura troppo grande (massimo 20 MiB).");
+        if (bytes.length > MAX_FILE_BYTES) throw localizedError("invoiceTooLarge", "Invoice is too large (maximum 20 MiB).");
         return checkXmlText(decodeXml(/\.p7m$/i.test(filename) ? cmsPayload(bytes) : bytes));
     }
     function decodeAttachment(value) {
-        if (value.length > Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 1024 * 1024) throw new Error("Allegato troppo grande.");
+        if (value.length > Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 1024 * 1024) throw localizedError("attachmentTooLarge", "Attachment is too large.");
         const clean = value.replace(/\s/g, "");
         if (clean.length > Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 ||
             (clean.length % 4 !== 0 || /[^A-Za-z0-9+/=]/.test(clean) || !/^[^=]*={0,2}$/.test(clean) || (clean.indexOf("=") !== -1 && clean.indexOf("=") < clean.length - 2))) {
-            throw new Error("Allegato Base64 non valido o troppo grande.");
+            throw localizedError("invalidBase64", "Invalid or oversized Base64 attachment.");
         }
         const binary = atob(clean);
-        if (binary.length > MAX_ATTACHMENT_BYTES) throw new Error("Allegato troppo grande.");
+        if (binary.length > MAX_ATTACHMENT_BYTES) throw localizedError("attachmentTooLarge", "Attachment is too large.");
         return Uint8Array.from(binary, c => c.charCodeAt(0));
     }
     function isPdf(bytes) {
